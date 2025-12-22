@@ -1,55 +1,119 @@
-# Laporan Progress - Sistem Absensi PGRI
-**Terakhir Diperbarui:** 15 Desember 2025
+# Progress Laporan Aplikasi Absensi SD Negeri Pasirhalang
 
-## 🟢 Status Sistem
-Aplikasi saat ini dalam kondisi **STABIL** dan **SIAP PAKAI**.
-Masalah kritis "Stuck Loading" dan "Error Peta" telah berhasil diperbaiki sepenuhnya. Tampilan antarmuka (UI) telah dirombak menjadi lebih modern dan resmi.
+## Fitur-fitur Aplikasi
 
----
+### Fitur untuk User Guru
+1. **Check In/Check Out**: Guru dapat melakukan absensi masuk dan pulang dengan menyertakan foto selfie sebagai bukti kehadiran
+2. **Pengajuan Izin**: Guru dapat mengajukan izin dengan berbagai jenis (Sakit, Keluarga, Dinas, Lainnya) beserta keterangan dan bukti foto jika diperlukan
+3. **Validasi GPS**: Sistem memastikan kehadiran guru hanya dapat dilakukan jika berada di dalam radius sekolah (100 meter)
+4. **PIN Otentikasi**: Setiap guru memiliki PIN unik untuk memverifikasi identitas saat melakukan absensi
+5. **Tampilan Jam Digital**: Menampilkan waktu real-time saat melakukan absensi
+6. **Statistik Kehadiran**: Menampilkan jumlah kehadiran, izin, dan alpha untuk bulan berjalan
+7. **Pemilihan Nama**: Guru memilih nama dari daftar yang telah terdaftar di database sekolah
+8. **Validasi Waktu**: Sistem memeriksa apakah guru datang terlambat dan meminta alasan jika melewati jam masuk
+9. **Kondisi Keterlambatan**: Jika guru datang setelah jam masuk, sistem akan menandai status sebagai "Terlambat" dan meminta alasan
+10. **Batas Waktu Izin**: Pengajuan izin harus dilakukan sebelum jam batas izin (default: 09:00)
+11. **Validasi Ganda**: Guru tidak dapat melakukan Check In lebih dari sekali dalam sehari
+12. **Prasyarat Check Out**: Guru hanya dapat melakukan Check Out jika sudah melakukan Check In pada hari yang sama
+13. **Validasi Ganda Check Out**: Guru tidak dapat melakukan Check Out lebih dari sekali dalam sehari
+14. **Validasi Keterangan Izin**: Keterangan izin harus minimal 10 karakter
+15. **Validasi PIN**: Sistem memverifikasi PIN guru sebelum memproses absensi atau izin
+16. **Pembatasan Percobaan PIN**: Jika PIN salah 3 kali berturut-turut, akun guru akan dikunci selama 5 menit
 
-## ✅ Fitur yang Sudah Berjalan
+### Fitur untuk User Administrator (di Spreadsheet)
+1. **Setup Database Awal**: Membuat struktur sheet dan data awal termasuk config, database guru, data absensi, dan jadwal kerja
+2. **Generate Laporan Bulanan**: Membuat sheet rekapitulasi absensi berdasarkan bulan dan tahun tertentu
+3. **Update Jadwal Kerja**: Mengatur jadwal kerja bulan tertentu (otomatis menandai hari kerja/libur)
+4. **Pemeliharaan Foto**: Menghapus foto lama (>3 bulan) untuk menghemat storage Google Drive
+5. **Manajemen Data Guru**: Menambahkan, mengedit, atau menghapus data guru di sheet database
+6. **Konfigurasi Sekolah**: Mengatur koordinat, jam masuk/pulang, jam batas izin, dan PIN admin di sheet config
+7. **Manajemen Absensi**: Melihat dan mengelola data absensi di sheet data-absensi
 
-### 1. Antarmuka Pengguna (Client-Side)
--   **Modern Official Design**: Header biru melengkung dengan gradasi, layout kartu overlap, dan tipografi modern (Poppins).
--   **Non-Blocking Loading**: Dashboard langsung terbuka tanpa loading screen yang memblokir, data dimuat di background (Asynchronous).
--   **Tombol Kontras Tinggi**: 
-    -   *Check In*: Hijau Emerald Solid (Mudah dikenali).
-    -   *Check Out*: Merah Rose Solid.
--   **Peta Lokasi (Leaflet JS)**: Menampilkan lokasi sekolah (lingkaran radius) dan lokasi real-time pengguna.
--   **Jam & Tanggal Digital**: Detik berjalan real-time + tanggal format Indonesia (Senin, 1 Januari 2025).
--   **Kamera Selfie**: Integrasi kamera depan untuk bukti kehadiran saat Check In.
--   **Validasi GPS**: Tombol Absen hanya aktif jika pengguna berada di dalam radius sekolah.
+## Syarat dan Kondisi Penggunaan Aplikasi
 
-### 2. Logika Server (Server-Side Apps Script)
--   **Parameter NPSN Otomatis**: Sistem membaca parameter `?npsn=...` dari URL dan meneruskannya ke aplikasi dengan aman.
--   **Robust Data Fetching (`getDisplayValues`)**: 
-    -   Menggunakan metode pembacaan data "Text-Only" untuk menghindari error format Tanggal/Waktu dari Excel.
-    -   *Fix utama untuk masalah "Stuck Loading".*
--   **Safe Coordinate Parsing**: Sistem tidak akan crash jika koordinat di Spreadsheet salah format (misal pakai ribuan `10.745...`). Default ke 0 jika error.
--   **School Name Handling**: Nama sekolah otomatis diambil dari:
-    1.  Cell **B8** di sheet `config` (Prioritas Utama).
-    2.  **Nama File Spreadsheet** (Jika B8 kosong).
--   **Pencatatan Kehadiran**: Fungsi `Check In`, `Check Out`, dan `Izin` (Sakit/Cuti) sudah terhubung ke database.
+### Syarat untuk Check In
+1. **Lokasi**: Guru harus berada dalam radius sekolah (100 meter dari koordinat sekolah)
+2. **Pemilihan Nama**: Guru harus memilih nama dari dropdown sebelum dapat melakukan Check In
+3. **Validasi PIN**: Guru harus memasukkan PIN yang benar (6 digit)
+4. **Foto Selfie**: Guru harus mengambil foto selfie sebagai bukti kehadiran
+5. **Tidak Double**: Guru tidak dapat melakukan Check In lebih dari sekali dalam sehari
+6. **Jam Masuk**: Jika guru datang setelah jam masuk (default: 07:00), sistem akan menandai sebagai terlambat dan meminta alasan
 
----
+### Syarat untuk Check Out
+1. **Lokasi**: Guru harus berada dalam radius sekolah (100 meter dari koordinat sekolah)
+2. **Pemilihan Nama**: Guru harus memilih nama dari dropdown sebelum dapat melakukan Check Out
+3. **Validasi PIN**: Guru harus memasukkan PIN yang benar (6 digit)
+4. **Sudah Check In**: Guru harus sudah melakukan Check In pada hari yang sama
+5. **Tidak Double**: Guru tidak dapat melakukan Check Out lebih dari sekali dalam sehari
 
-## 🛠️ Perbaikan Teknis Penting (Technical Fixes)
-Berikut adalah daftar bug yang baru saja diperbaiki:
-1.  **Fixed "Stuck Loading"**: Mengganti `getValues()` menjadi `getDisplayValues()` di `Code.js` untuk mencegah kegagalan serialisasi JSON pada objek Tanggal.
-2.  **Fixed "L is not defined"**: Menambahkan library `leaflet.js` yang sempat terlewat di `Form.html`.
-3.  **Fixed "Double Catch Error"**: Memperbaiki syntax error fatal di `Code.js` akibat copy-paste yang tidak rapi.
-4.  **Disabled Cache (Temporary)**: Kode CacheService dimatikan sementara untuk debugging kestabilan data. Bisa diaktifkan kembali di masa depan untuk performa super cepat.
+### Syarat untuk Pengajuan Izin
+1. **Pemilihan Nama**: Guru harus memilih nama dari dropdown sebelum dapat mengajukan izin
+2. **Validasi PIN**: Guru harus memasukkan PIN yang benar (6 digit)
+3. **Batas Waktu**: Pengajuan izin harus dilakukan sebelum jam batas izin (default: 09:00)
+4. **Keterangan**: Keterangan izin harus diisi minimal 10 karakter
+5. **Jenis Izin**: Guru harus memilih jenis izin (Sakit, Keluarga, Dinas, Lainnya)
+6. **Foto Bukti**: Jika diperlukan, guru dapat menyertakan foto bukti untuk jenis izin tertentu
 
----
+### Kondisi Keterlambatan
+1. **Deteksi Keterlambatan**: Sistem membandingkan waktu saat ini dengan jam masuk yang telah ditentukan
+2. **Status Terlambat**: Jika waktu Check In melewati jam masuk, status otomatis menjadi "Terlambat"
+3. **Permintaan Alasan**: Guru wajib memberikan alasan keterlambatan
+4. **Pencatatan**: Keterlambatan dicatat dalam sheet data-absensi dengan keterangan yang diberikan
 
-## 📝 To-Do / Langkah Selanjutnya
-Jika pengembangan dilanjutkan kembali, berikut adalah hal yang bisa dikerjakan:
+### Validasi dan Keamanan
+1. **Validasi GPS Wajib**: Absensi hanya dapat dilakukan di dalam radius sekolah
+2. **Validasi PIN**: Setiap aksi absensi diawali dengan verifikasi PIN
+3. **Pembatasan Percobaan**: Jika PIN salah 3 kali, akun akan dikunci 5 menit
+4. **Validasi Ganda**: Sistem mencegah Check In/Out ganda dalam sehari
+5. **Validasi Waktu Izin**: Izin hanya dapat diajukan sebelum jam batas izin
 
-1.  **Re-enable Server Cache**: Aktifkan kembali baris kode Cache di `Code.js` setelah yakin data stabil 100% untuk loading super cepat (<1 detik).
-2.  **Halaman Riwayat**: Menu "Riwayat" di navigasi bawah saat ini masih placeholder (tampilan saja), belum menampilkan data histori absen.
-3.  **Halaman Profil**: Menu "Profil" belum ada isinya.
-4.  **Validasi Foto Wajah**: (Advanced) Menambahkan deteksi wajah AI jika diperlukan.
+## Alur Penggunaan Aplikasi
 
----
+### Alur untuk Guru
+1. **Akses Aplikasi**: Guru mengakses URL aplikasi dengan parameter NPSN (misalnya: `...exec?npsn=20205293`)
+2. **Pemilihan Nama**: Guru memilih nama dari dropdown yang menampilkan daftar guru terdaftar
+3. **Validasi Lokasi**: Sistem mengecek apakah guru berada di dalam radius sekolah melalui GPS
+4. **Proses Check In**:
+   - Klik tombol "Check In" (aktif hanya jika di lokasi sekolah)
+   - Ambil foto selfie menggunakan kamera depan
+   - Masukkan PIN 6 digit
+   - Jika terlambat (setelah jam masuk), masukkan alasan keterlambatan
+   - Data disimpan ke sheet data-absensi
+5. **Proses Check Out**:
+   - Klik tombol "Check Out" (aktif hanya jika di lokasi sekolah dan sudah Check In hari itu)
+   - Masukkan PIN 6 digit
+   - Data disimpan ke sheet data-absensi
+6. **Pengajuan Izin**:
+   - Klik tombol "Pengajuan Izin"
+   - Pilih jenis izin (Sakit, Keluarga, Dinas, Lainnya)
+   - Tulis keterangan detail (minimal 10 karakter)
+   - Masukkan PIN 6 digit
+   - Data izin disimpan ke sheet data-absensi
 
-*File ini disimpan di luar folder project utama untuk referensi pengembangan selanjutnya.*
+### Alur untuk Administrator
+1. **Akses Spreadsheet**: Buka spreadsheet database sekolah (SD Negeri Pasirhalang)
+2. **Setup Awal**: Jalankan fungsi "Setup Database Awal" dari menu "Admin Absensi" untuk membuat struktur sheet
+3. **Pengelolaan Data Guru**: Tambahkan atau edit data guru di sheet "database"
+4. **Konfigurasi Sekolah**: Atur parameter sekolah di sheet "config" (koordinat, jam kerja, dll)
+5. **Generate Laporan**: Gunakan menu "Generate Laporan Bulanan" untuk membuat rekap absensi per bulan
+6. **Update Jadwal**: Gunakan menu "Update Jadwal Kerja" untuk mengatur hari kerja/libur
+7. **Pemeliharaan**: Gunakan "Hapus Foto Lama" untuk mengelola storage Drive
+
+## Implementasi Multi-Sekolah dengan NPSN
+
+Aplikasi ini dirancang untuk digunakan oleh beberapa sekolah dengan membedakan NPSN di URL. Berikut cara implementasinya:
+
+1. **Registrasi Sekolah**: Setiap sekolah memiliki NPSN unik yang didaftarkan di `SCHOOL_REGISTRY` di Code.js
+2. **Database Terpisah**: Setiap NPSN dipetakan ke Spreadsheet ID yang berbeda, sehingga setiap sekolah memiliki database terpisah
+3. **Koordinat Sekolah**: Setiap NPSN memiliki koordinat GPS dan radius yang berbeda di `SCHOOL_COORDINATES`
+4. **URL Unik**: Guru mengakses URL dengan parameter NPSN yang berbeda untuk setiap sekolah (misalnya `...exec?npsn=20205293` untuk SDN Pasirhalang, `...exec?npsn=12345678` untuk sekolah lain)
+
+### Proses Pembuatan Salinan untuk Sekolah Baru
+1. **Salin Spreadsheet**: Buat salinan dari spreadsheet SD Negeri Pasirhalang
+2. **Ubah Nama File**: Ganti nama file spreadsheet dengan nama sekolah baru
+3. **Update Config**: Sesuaikan data di sheet "config" dengan informasi sekolah baru (koordinat, jam kerja, dll)
+4. **Update Data Guru**: Ganti data guru di sheet "database" dengan data guru sekolah baru
+5. **Tambahkan ke Registry**: Tambahkan pasangan NPSN dan Spreadsheet ID baru ke `SCHOOL_REGISTRY` dan `SCHOOL_COORDINATES` di Code.js
+6. **Dapatkan URL Baru**: Gunakan URL Apps Script yang sama dengan parameter NPSN sekolah baru
+
+Dengan pendekatan ini, satu aplikasi dapat melayani banyak sekolah secara terpisah dan aman, dengan data yang terisolasi masing-masing sekolah.
