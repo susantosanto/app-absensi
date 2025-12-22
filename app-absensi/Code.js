@@ -670,7 +670,9 @@ function processIzin(data) {
         // 2. Check waktu batas izin
         const now = new Date();
         const currentTime = Utilities.formatDate(now, Session.getScriptTimeZone(), 'HH:mm');
-        if (currentTime > config.jamBatasIzin) {
+
+        // REVISI: Izin "Dinas" bebas waktu (tidak dibatasi jam)
+        if (currentTime > config.jamBatasIzin && jenisIzin !== 'Dinas') {
             return {
                 success: false,
                 message: `Batas waktu pengajuan izin (${config.jamBatasIzin}) sudah habis.`

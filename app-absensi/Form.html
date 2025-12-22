@@ -110,22 +110,69 @@
         /* Welcome Text - ENHANCED */
         .welcome-section {
             margin-bottom: 22px;
+            animation: fadeInWelcome 0.8s ease-out;
+        }
+
+        @keyframes fadeInWelcome {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
 
         .welcome-section p {
-            font-size: 12px;
-            opacity: 0.85;
-            margin-bottom: 6px;
+            font-size: 11px;
+            opacity: 0.8;
+            margin-bottom: 8px;
             font-weight: 500;
-            letter-spacing: 0.3px;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+        }
+
+        .school-name-container {
+            position: relative;
         }
 
         .welcome-section h2 {
-            font-size: 22px;
-            font-weight: 700;
-            line-height: 1.25;
-            letter-spacing: -0.3px;
-            text-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            font-size: clamp(20px, 5vw, 24px);
+            font-weight: 800;
+            line-height: 1.3;
+            letter-spacing: -0.5px;
+            background: linear-gradient(135deg, #ffffff 0%, #e0e7ff 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 8px;
+            text-shadow: none;
+            position: relative;
+            display: inline-block;
+            word-wrap: break-word;
+            overflow-wrap: break-word;
+            /* Ensure VERY long words break */
+            max-width: 100%;
+            /* Prevent overflow */
+        }
+
+        .school-name-verified {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            margin-top: 4px;
+        }
+
+
+        .accent-line {
+            width: 60px;
+            height: 3px;
+            background: linear-gradient(90deg, #fbbf24, #f59e0b);
+            margin: 8px 0 0 0;
+            border-radius: 2px;
+            box-shadow: 0 2px 8px rgba(251, 191, 36, 0.3);
         }
 
         /* Dropdown di Header */
@@ -158,8 +205,8 @@
             margin-top: -50px;
             position: relative;
             z-index: 2;
-            margin-bottom: 20px;
-            /* Extra spacer */
+            margin-bottom: 32px;
+            /* Extra spacer for proper spacing above bottom nav */
         }
 
         /* CARD STYLE */
@@ -168,7 +215,7 @@
             border-radius: var(--radius-xl);
             padding: 24px;
             box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
-            margin-bottom: 20px;
+            margin-bottom: 12px;
             text-align: center;
         }
 
@@ -421,12 +468,14 @@
             border-radius: 12px;
             transition: all 0.3s;
             background: #f8fafc;
+            border: 1px solid #e2e8f0;
         }
 
         .nav-item.active {
             background: #eff6ff;
             color: #2563eb;
             font-weight: 600;
+            border-color: #bfdbfe;
         }
 
         .nav-item i {
@@ -436,7 +485,8 @@
         /* COMPACT 2-LINE FOOTER */
         .nav-footer {
             text-align: center;
-            padding-top: 2px;
+            padding-top: 8px;
+            border-top: 1px solid #e2e8f0;
         }
 
         .nav-footer-main {
@@ -550,10 +600,32 @@
         }
 
         .footer-copyright {
-            font-size: 9px;
+            font-size: 10px;
             color: #94a3b8;
             font-weight: 500;
             letter-spacing: 0.8px;
+        }
+
+        /* ANIMASI PULSE UNTUK TOMBOL REFRESH */
+        @keyframes pulse-red {
+            0% {
+                box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7);
+            }
+
+            70% {
+                box-shadow: 0 0 0 6px rgba(239, 68, 68, 0);
+            }
+
+            100% {
+                box-shadow: 0 0 0 0 rgba(239, 68, 68, 0);
+            }
+        }
+
+        .pulse-animation {
+            animation: pulse-red 2s infinite;
+            background-color: #fee2e2 !important;
+            color: #b91c1c !important;
+            border: 1px solid #fecaca !important;
         }
     </style>
 </head>
@@ -578,7 +650,10 @@
 
         <div class="welcome-section">
             <p>Selamat Datang di</p>
-            <h2 id="schoolName">Memuat Sekolah...</h2>
+            <div class="school-name-container">
+                <h2 id="schoolName">Memuat Sekolah...</h2>
+            </div>
+            <div class="accent-line"></div>
         </div>
 
         <div class="user-select-container">
@@ -659,9 +734,9 @@
         <div class="nav-footer">
             <div class="nav-footer-main">
                 <i class="fas fa-code" style="color: #3b82f6; font-size: 11px;"></i>
-                <span>Developed by <span class="nav-footer-author">Susanto, S.Kom</span></span>
+                <span>Developed by <span class="nav-footer-author">Susanto, S. Kom</span></span>
                 <span class="separator-dot"></span>
-                <span class="nav-footer-tagline">Build with passion for EdTech.</span>
+                <span class="nav-footer-tagline">Build with passion for Education Technology.</span>
             </div>
             <div class="nav-footer-copyright">
                 Copyright © 2025 • All Rights Reserved
@@ -851,10 +926,15 @@
                 statusEl.innerHTML = '✅ Di Zona Sekolah';
                 statusEl.style.color = '#10b981';
                 statusEl.style.background = '#ecfdf5';
+                // Matikan animasi jika sudah benar
+                document.querySelector('.btn-refresh-gps').classList.remove('pulse-animation');
             } else {
-                statusEl.innerHTML = `❌ Luar Zona (${Math.round(dist)}m)`;
+                // Teks lebih informatif
+                statusEl.innerHTML = `❌ Luar Zona (${Math.round(dist)}m) <span style="font-weight:400; font-size:10px;">• Refresh?</span>`;
                 statusEl.style.color = '#b91c1c';
                 statusEl.style.background = '#fef2f2';
+                // Nyalakan animasi agar user "ngeh"
+                document.querySelector('.btn-refresh-gps').classList.add('pulse-animation');
             }
             updateButtons(inRadius);
         }
@@ -906,9 +986,13 @@
 
         function updateButtons(inRadius) {
             const hasGuru = document.getElementById('selectGuru').value !== "";
-            // Check In/Out BUTUH Radius & Nama
-            document.getElementById('btnCheckIn').disabled = !(inRadius && hasGuru);
-            document.getElementById('btnCheckOut').disabled = !(inRadius && hasGuru);
+
+            // REVISI: Tombol TIDAK dimatikan total jika luar radius
+            // Tapi nanti dicek saat diklik (Smart Alert)
+            // Jadi hanya disable jika belum pilih guru
+
+            document.getElementById('btnCheckIn').disabled = !hasGuru;
+            document.getElementById('btnCheckOut').disabled = !hasGuru;
 
             // Izin TIDAK BUTUH Radius, cuma butuh Nama
             document.getElementById('btnIzin').disabled = !hasGuru;
@@ -972,6 +1056,34 @@
             const nama = document.getElementById('selectGuru').value;
             console.log('🔵 Starting Check In for:', nama);
 
+            // 1. CEK GPS DULU SEBELUM MULAI
+            if (!appData || !currentPosition) {
+                Swal.fire('Lokasi Belum Siap', 'Tunggu sebentar sedang mencari lokasi...', 'warning');
+                return;
+            }
+
+            const dist = getDistance(currentPosition.lat, currentPosition.lng, appData.config.lat, appData.config.lng);
+            if (dist > appData.config.radius) {
+                // Tampilkan pesan edukatif + tombol refresh diarahin manual
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Anda di Luar Zona',
+                    html: `
+                        <div style="font-size:14px; color:#475569;">
+                            Jarak ke sekolah: <strong>${Math.round(dist)} meter</strong>.<br>
+                            Maksimal: ${appData.config.radius} meter.
+                        </div>
+                        <div style="margin-top:15px; font-size:13px; background:#fff1f2; color:#be123c; padding:10px; border-radius:8px;">
+                            📍 Pastikan Anda sudah di sekolah.<br>
+                            Jika sudah, tekan tombol <strong>Refresh GPS</strong> (ikon panah putar) di atas peta.
+                        </div>
+                    `,
+                    confirmButtonText: 'Oke, Saya Cek GPS',
+                    confirmButtonColor: '#3b82f6'
+                });
+                return;
+            }
+
             const { value: photoFile } = await Swal.fire({
                 title: '📸 Foto Selfie',
                 html: '<input type="file" id="cam" accept="image/*" capture="user" style="display:block; margin:20px auto">',
@@ -1022,6 +1134,25 @@
 
         async function showCheckOutDialog() {
             const nama = document.getElementById('selectGuru').value;
+
+            // 1. CEK GPS DULU
+            if (!appData || !currentPosition) {
+                Swal.fire('Lokasi Belum Siap', 'Tunggu sebentar sedang mencari lokasi...', 'warning');
+                return;
+            }
+
+            // Check Out sebenernya boleh dimana aja (opsional), tapi biasanya harus di sekolah juga
+            // Kita samakan logicnya harus di sekolah biar konsisten
+            const dist = getDistance(currentPosition.lat, currentPosition.lng, appData.config.lat, appData.config.lng);
+            if (dist > appData.config.radius) {
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Anda di Luar Zona',
+                    text: `Jarak Anda ${Math.round(dist)}m dari sekolah. Silakan refresh GPS jika Anda yakin sudah di lokasi.`,
+                    confirmButtonText: 'Baik'
+                });
+                return;
+            }
             const { value: pin } = await Swal.fire({
                 title: '🔐 PIN Check Out',
                 input: 'password',
@@ -1157,6 +1288,7 @@
                             <div style="font-size: 11px; color: #1e40af; line-height: 1.6;">
                                 <i class="fas fa-info-circle" style="margin-right: 4px;"></i>
                                 <strong>Catatan:</strong> Pengajuan izin harus dilakukan sebelum pukul <strong>${appData.config.jamBatasIzin}</strong>
+                                <br><span style="margin-left:14px; font-style:italic;">(Perjalanan Dinas tidak dibatasi waktu)</span>
                             </div>
                         </div>
                     </div>
@@ -1268,7 +1400,6 @@
                             <ul style="margin: 8px 0 0 20px; font-size: 12px; color: #475569; line-height: 1.8;">
                                 <li>Riwayat kehadiran lengkap dengan filter</li>
                                 <li>Profil pengguna & pengaturan akun</li>
-                                <li>Export data ke Excel/PDF</li>
                                 <li>Notifikasi real-time</li>
                             </ul>
                         </div>
