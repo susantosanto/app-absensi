@@ -11,6 +11,7 @@ function onOpen() {
         .addSeparator()
         .addItem('Generate Laporan Bulanan', 'showReportDialog')
         .addItem('Update Jadwal Kerja Bulan Depan', 'showScheduleUpdateDialog')
+        .addItem('Reset Kunci Perangkat (Ganti HP)', 'resetDeviceID')
         .addSeparator()
         .addItem('Hapus Foto Lama (>30 Hari)', 'autoDeleteOldPhotos')
         .addToUi();
@@ -172,6 +173,50 @@ function getFolderByNameGlobal(name) {
 }
 
 /**
+ * Reset Device ID (Kunci Perangkat) untuk guru tertentu
+ */
+function resetDeviceID() {
+    var ui = SpreadsheetApp.getUi();
+    var ss = SpreadsheetApp.getActiveSpreadsheet();
+    var sheet = ss.getSheetByName("database");
+
+    if (!sheet) {
+        ui.alert("Sheet 'database' tidak ditemukan!");
+        return;
+    }
+
+    var result = ui.prompt(
+        'Reset Kunci Perangkat',
+        'Masukkan NIP atau Nama Lengkap guru yang ingin di-reset:',
+        ui.ButtonSet.OK_CANCEL);
+
+    if (result.getSelectedButton() == ui.Button.OK) {
+        var input = result.getResponseText().trim().toLowerCase();
+        if (!input) return;
+
+        var data = sheet.getDataRange().getValues();
+        var found = false;
+
+        for (var i = 1; i < data.length; i++) {
+            var name = String(data[i][0]).toLowerCase();
+            var nip = String(data[i][1]).toLowerCase();
+
+            if (name === input || nip === input) {
+                // Column I (Index 9) adalah DeviceID
+                sheet.getRange(i + 1, 9).setValue("");
+                ui.alert("✅ Kunci perangkat untuk guru '" + data[i][0] + "' berhasil dihapus.\nSekarang guru tersebut bisa login kembali di HP baru.");
+                found = true;
+                break;
+            }
+        }
+
+        if (!found) {
+            ui.alert("❌ Data guru tidak ditemukan. Pastikan NIP atau Nama yang dimasukkan benar.");
+        }
+    }
+}
+
+/**
  * SETUP AWAL DATABASE (Jalankan ini sekali saat pertama kali!)
  */
 function setupDatabase() {
@@ -188,7 +233,8 @@ function setupDatabase() {
         sheetConfig.appendRow(["JAM_MASUK", "07:00"]);
         sheetConfig.appendRow(["JAM_BATAS_IZIN", "09:00"]);
         sheetConfig.appendRow(["JAM_PULANG", "14:00"]); // NEW: Jam minimal check out
-        sheetConfig.appendRow(["ADMIN_PIN", "999999"]); // NEW: PIN untuk admin override
+        // sheetConfig.appendRow(["ADMIN_PIN", "999999"]); // NEW: PIN untuk admin override
+        sheetConfig.appendRow(["NAMA_SEKOLAH", "SDN CONTOH"]); // Baris 8: Nama Sekolah
 
         // Style
         sheetConfig.getRange("A1:B1").setFontWeight("bold").setBackground("#cbd5e1");
@@ -200,16 +246,21 @@ function setupDatabase() {
     var sheetDB = ss.getSheetByName("database");
     if (!sheetDB) {
         sheetDB = ss.insertSheet("database");
-        sheetDB.appendRow(["Nama Lengkap", "NIP", "Jabatan", "Unit Kerja", "PIN"]);
-        // Data Dummy
-        sheetDB.appendRow(["Guru Demo 1", "12345678", "Guru Kelas", "Kelas 1A", "123456"]);
-        sheetDB.appendRow(["Guru Demo 2", "87654321", "Waka Kurikulum", "Kelas 2B", "654321"]);
-        sheetDB.appendRow(["Admin Demo", "00000000", "Kepala Sekolah", "SDN Pasirhalang", "999999"]);
+        // Update Headers: Tambahkan Kolom G (Kosong/PIN) dan Kolom I (DeviceID)
+        sheetDB.appendRow(["Nama Lengkap", "NIP", "Jabatan", "Unit Kerja", "Email", "Password", "PIN", "LastCheckInDate", "DeviceID"]);
 
-        sheetDB.getRange("A1:E1").setFontWeight("bold").setBackground("#bbf7d0");
+        // Data Dummy (NIP sebagai identifier utama login)
+        sheetDB.appendRow(["Guru Demo 1", "198001012010011001", "Guru Kelas", "Kelas 1A", "guru1@sekolah.id", "1234", "123456", "", ""]);
+        sheetDB.appendRow(["Guru Demo 2", "198505052015012002", "Waka Kurikulum", "Kelas 2B", "guru2@sekolah.id", "1234", "123456", "", ""]);
+        sheetDB.appendRow(["Admin Demo", "00000000", "Kepala Sekolah", "SDN Pasirhalang", "admin@sekolah.id", "1234", "123456", "", ""]);
+
+        sheetDB.getRange("A1:I1").setFontWeight("bold").setBackground("#bbf7d0");
         sheetDB.setColumnWidth(1, 180);
+        sheetDB.setColumnWidth(2, 200); // NIP
         sheetDB.setColumnWidth(3, 150);
         sheetDB.setColumnWidth(4, 150);
+        sheetDB.setColumnWidth(5, 200); // Email
+        sheetDB.setColumnWidth(9, 250); // DeviceID
     }
 
     // 3. Setup Sheet 'data-absensi'

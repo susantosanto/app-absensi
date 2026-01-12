@@ -1,0 +1,18 @@
+{
+  "name": "app-absensi",
+  "version": "1.0.0",
+  "description": "Sistem manajemen kehadiran modern berbasis web (mobile-first) yang dibangun menggunakan Google Apps Script, terintegrasi penuh dengan Google Sheets sebagai database realtime.",
+  "main": "Code.js",
+  "scripts": {
+    "login": "clasp login",
+    "clone": "clasp clone",
+    "pull": "clasp pull",
+    "push": "clasp push",
+    "open": "clasp open",
+    "watch": "clasp push --watch"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs"
+}

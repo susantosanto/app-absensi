@@ -103,7 +103,7 @@ clasp deploy
 
 ## 👨‍💻 Credits
 
-**Developed by Susanto, S.Kom**
-*Build with passion for Education Technology.*
+**Developed by X / CODE**
+*Precision in every line. Education through innovation.*
 
 Copyright © 2025 • All Rights Reserved

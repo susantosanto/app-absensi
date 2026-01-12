@@ -2,8 +2,25 @@
 <html lang="id">
 
 <head>
-    <title>Sistem Absensi PGRI</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+    <title>SIKADIR</title>
+    <meta name="viewport"
+        content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+
+    <!-- PWA & MOBILE OPTIMIZATION -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="SIKADIR">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="theme-color" content="#0f172a">
+    <meta name="description" content="Sistem Informasi Kehadiran Digital Guru">
+
+    <!-- DATA URI MANIFEST TO FORCE STANDALONE MODE (NO ADDRESS BAR) -->
+    <link rel="manifest"
+        href='data:application/manifest+json,{"name":"SIKADIR","short_name":"SIKADIR","start_url":".","display":"standalone","background_color":"#0f172a","theme_color":"#0f172a","icons":[{"src":"https://img.icons8.com/color/480/attendance.png","sizes":"480x480","type":"image/png"}]}'>
+
+    <!-- Apple Touch Icon (Placeholder) -->
+    <link rel="apple-touch-icon" href="https://img.icons8.com/color/480/attendance.png">
+    <link rel="icon" type="image/png" href="https://img.icons8.com/color/480/attendance.png">
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
@@ -54,6 +71,36 @@
             z-index: 1;
         }
 
+        .btn-settings {
+            width: 42px;
+            height: 42px;
+            background: rgba(255, 255, 255, 0.12);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+        }
+
+        .btn-settings:active {
+            transform: scale(0.9);
+            background: rgba(255, 255, 255, 0.25);
+        }
+
+        .btn-settings i {
+            font-size: 20px;
+            transition: transform 0.6s ease;
+        }
+
+        .btn-settings:hover i {
+            transform: rotate(90deg);
+        }
+
         /* Top Bar: Logo & Title - MODERN DESIGN */
         .top-bar {
             display: flex;
@@ -63,17 +110,28 @@
         }
 
         .logo-placeholder {
-            width: 56px;
-            height: 56px;
+            width: 60px;
+            height: 60px;
             background: linear-gradient(135deg, rgba(255, 255, 255, 0.25), rgba(255, 255, 255, 0.15));
             border-radius: 16px;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 28px;
+            font-size: 30px;
             box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
             backdrop-filter: blur(10px);
             border: 1px solid rgba(255, 255, 255, 0.2);
+            overflow: hidden;
+        }
+
+        #dashLogoContainer .logo-img {
+            transform: scale(1.2);
+        }
+
+        .logo-img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
         }
 
         .app-title {
@@ -91,7 +149,7 @@
         }
 
         .app-title strong {
-            font-size: 17px;
+            font-size: 19px;
             font-weight: 700;
             letter-spacing: 0.3px;
             display: block;
@@ -99,12 +157,21 @@
         }
 
         .app-title .tagline {
-            font-size: 9px;
-            opacity: 0.7;
-            font-weight: 400;
+            font-size: 10px;
+            font-weight: 700;
             letter-spacing: 0.5px;
+            margin-top: 4px;
+            color: #10b981;
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+        }
+
+        .app-title .subtitle {
+            font-size: 11px;
+            font-weight: 500;
+            opacity: 0.9;
             margin-top: 2px;
-            font-style: italic;
+            letter-spacing: 0.3px;
+            color: #f8fafc;
         }
 
         /* Welcome Text - ENHANCED */
@@ -627,156 +694,560 @@
             color: #b91c1c !important;
             border: 1px solid #fecaca !important;
         }
+
+        /* SKELETON ANIMATION */
+        .skeleton {
+            background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+            background-size: 200% 100%;
+            animation: skeleton-loading 1.5s infinite;
+        }
+
+        @keyframes skeleton-loading {
+            0% {
+                background-position: 200% 0;
+            }
+
+            100% {
+                background-position: -200% 0;
+            }
+        }
+
+        /* FORCE SWAL TO BE ON TOP */
+        .swal2-container {
+            z-index: 25000 !important;
+        }
     </style>
 </head>
 
 <body>
     <!-- LOADING INITIAL -->
-    <div id="pageLoader">
-        <div style="font-size: 40px; margin-bottom: 20px;">🛡️</div>
-        <div style="color: #64748b; font-weight: 500;">Memuat Aplikasi...</div>
-    </div>
-
-    <!-- HEADER MELENGKUNG -->
-    <div class="header-bg">
-        <div class="top-bar">
-            <div class="logo-placeholder"><i class="fas fa-shield-alt"></i></div>
-            <div class="app-title">
-                <small>SISTEM ABSENSI</small>
-                <strong>PGRI CIKALONG WETAN</strong>
-                <div class="tagline">Sistem Manajemen Kehadiran Digital</div>
-            </div>
+    <div id="pageLoader"
+        style="display:none; position:fixed; inset:0; background:white; z-index:9999; display:flex; flex-direction:column; align-items:center; justify-content:center; padding: 40px; text-align: center;">
+        <div id="loadingLogoContainer" class="skeleton"
+            style="width:100px; height:100px; border-radius:24px; margin-bottom: 24px; display:flex; align-items:center; justify-content:center; overflow:hidden;">
+            <div id="loadingLogoPlaceholder" style="font-size: 48px;">🛡️</div>
         </div>
-
-        <div class="welcome-section">
-            <p>Selamat Datang di</p>
-            <div class="school-name-container">
-                <h2 id="schoolName">Memuat Sekolah...</h2>
-            </div>
-            <div class="accent-line"></div>
-        </div>
-
-        <div class="user-select-container">
-            <select id="selectGuru">
-                <option value="">-- Pilih Nama Guru / Staff --</option>
-            </select>
+        <div style="color: #0f172a; font-weight: 700; font-size: 18px; margin-bottom: 8px;">Memuat Aplikasi...</div>
+        <div id="loadingQuote"
+            style="color: #64748b; font-size: 13px; font-style: italic; line-height: 1.6; max-width: 300px;">
+            "Guru adalah pelita bagi anak bangsa."
         </div>
     </div>
 
-    <!-- CONTENT OVERLAY -->
-    <div class="main-content">
+    <!-- LOGIN PAGE -->
+    <div id="loginPage"
+        style="min-height:100vh; background: linear-gradient(135deg, #0f172a 0%, #1e3a8a 100%); position:fixed; top:0; left:0; width:100%; z-index:2000; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:20px; box-sizing:border-box;">
 
-        <!-- CARD UTAMA: JAM & AKSI -->
-        <div class="card">
-            <div class="clock-container">
-                <div id="clock">00:00</div>
-                <div id="dateDisplay">Senin, 1 Januari 2025</div>
+        <div
+            style="width:100%; max-width:380px; background:rgba(255,255,255,0.85); backdrop-filter:blur(12px); border-radius:24px; padding:40px 30px; box-shadow: 0 25px 50px -12px rgba(15, 23, 42, 0.15); border:1px solid rgba(255,255,255,0.6);">
+            <div style="text-align:center; margin-bottom:32px;">
+                <div id="loginLogoContainer" class="skeleton"
+                    style="width:85px; height:85px; border-radius:22px; margin:0 auto 24px; display:flex; align-items:center; justify-content:center; box-shadow:0 12px 25px rgba(0,0,0,0.08); overflow:hidden;">
+                    <i id="loginLogoIcon" class="fas fa-shield-alt" style="font-size:38px; color:#cbd5e1;"></i>
+                </div>
+                <h2 style="font-size:24px; font-weight:800; margin-bottom:8px; letter-spacing:-0.5px;">
+                    <span style="color:#0f172a;">SIKA</span><span style="color:#059669;">DIR</span>
+                </h2>
+                <div style="height:4px; width:40px; background:#059669; border-radius:2px; margin:0 auto 12px;"></div>
+                <p style="color:#0f172a; font-size:11.5px; font-weight:600; margin-bottom:4px; white-space: nowrap;">
+                    Sistem Informasi Kehadiran Digital Guru</p>
+                <div style="color:#059669; font-size:11px; font-weight:700;">"Mudah, Tertib, Akurat"</div>
             </div>
 
-            <div class="action-grid">
-                <button id="btnCheckIn" class="action-btn btn-checkin" onclick="showCheckInDialog()" disabled>
-                    <div class="icon-box"><i class="fas fa-sign-in-alt"></i></div>
-                    <span class="btn-label">Check In</span>
+            <form id="loginForm" onsubmit="handleLogin(event)">
+                <div style="margin-bottom:20px;">
+                    <label
+                        style="display:block; font-size:12px; font-weight:700; color:#475569; margin-bottom:8px; text-transform:uppercase; letter-spacing:0.5px;">NIP
+                        / Email</label>
+                    <div style="position:relative;">
+                        <i class="fas fa-user" style="position:absolute; left:16px; top:16px; color:#94a3b8;"></i>
+                        <input type="text" id="loginEmail" required placeholder="Masukkan NIP atau Email"
+                            style="width:100%; padding:14px 14px 14px 44px; border:1px solid #cbd5e1; border-radius:12px; background:white; outline:none; font-size:14px; transition:all 0.3s; color:#1e293b;">
+                    </div>
+                </div>
+
+                <div style="margin-bottom:32px;">
+                    <label
+                        style="display:block; font-size:12px; font-weight:700; color:#475569; margin-bottom:8px; text-transform:uppercase; letter-spacing:0.5px;">Password</label>
+                    <div style="position:relative;">
+                        <i class="fas fa-lock" style="position:absolute; left:16px; top:16px; color:#94a3b8;"></i>
+                        <input type="password" id="loginPassword" required placeholder="•••••••"
+                            style="width:100%; padding:14px 14px 14px 44px; border:1px solid #cbd5e1; border-radius:12px; background:white; outline:none; font-size:14px; transition:all 0.3s; color:#1e293b;">
+                    </div>
+                </div>
+
+                <button type="submit" id="btnLogin"
+                    style="width:100%; background:linear-gradient(135deg, #1e293b, #0f172a); color:white; border:none; padding:16px; border-radius:12px; font-weight:600; font-size:15px; cursor:pointer; box-shadow:0 4px 12px rgba(15,23,42,0.15); transition:transform 0.2s;">
+                    Masuk Aplikasi
                 </button>
-                <button id="btnCheckOut" class="action-btn btn-checkout" onclick="showCheckOutDialog()" disabled>
-                    <div class="icon-box"><i class="fas fa-sign-out-alt"></i></div>
-                    <span class="btn-label">Check Out</span>
-                </button>
-            </div>
+            </form>
+
         </div>
+        <div style="text-align:center; margin-top:24px; font-size:11px; color:rgba(255,255,255,0.5);">
+            &copy; 2026 • Sistem Absensi Digital • Versi 1.0 (BETA)
+        </div>
+    </div>
 
-        <!-- GPS & MAP SECTION -->
-        <div class="map-section">
-            <div class="section-header">
-                <div class="section-title"><i class="fas fa-map-marker-alt text-red"></i> Posisi Anda</div>
-                <div style="display: flex; align-items: center; gap: 8px;">
-                    <div id="gpsStatus">Non-Aktif</div>
-                    <button onclick="refreshGPS()" class="btn-refresh-gps" title="Refresh GPS">
-                        <i class="fas fa-sync-alt"></i>
+    <!-- MAIN APP WRAPPER (Hidden by default until login) -->
+    <div id="mainApp" style="display:none;">
+
+        <!-- HEADER MELENGKUNG -->
+        <div class="header-bg">
+            <div class="top-bar">
+                <div class="logo-placeholder skeleton" id="dashLogoContainer">
+                    <i id="dashLogoIcon" class="fas fa-shield-alt" style="color:#cbd5e1;"></i>
+                </div>
+                <div class="app-title">
+                    <strong><span style="color:#f8fafc;">SIKA</span><span style="color:#10b981;">DIR</span></strong>
+                    <div class="subtitle">Sistem Informasi Kehadiran Digital Guru</div>
+                    <!-- <div class="tagline">"Mudah, Tertib, Akurat"</div> -->
+                </div>
+                <!-- Settings Icon Moved to Body -->
+            </div>
+
+            <div class="welcome-section">
+                <p>Selamat Datang di</p>
+                <div class="school-name-container">
+                    <div id="schoolNpsn"
+                        style="font-size: 12px; font-weight: 700; opacity: 0.85; margin-bottom: -2px; letter-spacing: 1px; color: #f8fafc;">
+                        (NPSN) -</div>
+                    <h2 id="schoolName">Memuat Sekolah...</h2>
+                </div>
+                <div class="accent-line"></div>
+            </div>
+
+            <div class="user-select-container">
+                <!-- Dynamic User greeting removed dropdown logic -->
+                <div
+                    style="background:rgba(255,255,255,0.15); padding:12px 16px; border-radius:16px; backdrop-filter:blur(5px); border:1px solid rgba(255,255,255,0.2); display:flex; align-items:center; gap:12px;">
+                    <div
+                        style="width:36px; height:36px; background:white; border-radius:50%; display:flex; align-items:center; justify-content:center;">
+                        <i class="fas fa-user-circle" style="color:#0f172a; font-size:20px;"></i>
+                    </div>
+                    <div>
+                        <div style="font-size:10px; opacity:0.8;">Login sebagai:</div>
+                        <div id="userDisplayName" style="font-size:14px; font-weight:600;">...</div>
+                    </div>
+                    <!-- Logout Button -->
+                    <button onclick="handleLogout()" title="Keluar dari Aplikasi SIKADIR"
+                        style="margin-left:auto; background:rgba(255,255,255,0.2); border:none; padding:8px 14px; border-radius:12px; color:white; cursor:pointer; display:flex; align-items:center; gap:8px; transition:all 0.3s; border:1px solid rgba(255,255,255,0.15); box-shadow:0 4px 12px rgba(0,0,0,0.1);">
+                        <span style="font-size:10px; font-weight:700; letter-spacing:0.8px;">KELUAR</span>
+                        <i class="fas fa-power-off" style="font-size:11px;"></i>
                     </button>
                 </div>
             </div>
-            <div id="map"></div>
-
-            <button id="btnIzin" onclick="showIzinDialog()" disabled class="btn-izin">
-                <i class="fas fa-file-medical"></i> Pengajuan Izin / Sakit
-            </button>
         </div>
 
-        <!-- STATS GRID -->
-        <div class="stats-grid" id="statsContainer" style="display:none;">
-            <div class="stat-box">
-                <div class="stat-val text-green" id="statHadir">-</div>
-                <div class="stat-txt">Hadir</div>
+        <!-- CONTENT OVERLAY -->
+        <div class="main-content">
+
+            <!-- CARD UTAMA: JAM & AKSI -->
+            <div class="card">
+                <div class="clock-container">
+                    <div id="clock">00:00</div>
+                    <div id="dateDisplay">Senin, 1 Januari 2025</div>
+                </div>
+
+                <div class="action-grid">
+                    <button id="btnCheckIn" class="action-btn btn-checkin" onclick="showCheckInDialog()" disabled>
+                        <div class="icon-box"><i class="fas fa-sign-in-alt"></i></div>
+                        <span class="btn-label">Check In</span>
+                    </button>
+                    <button id="btnCheckOut" class="action-btn btn-checkout" onclick="showCheckOutDialog()" disabled>
+                        <div class="icon-box"><i class="fas fa-sign-out-alt"></i></div>
+                        <span class="btn-label">Check Out</span>
+                    </button>
+                </div>
             </div>
-            <div class="stat-box">
-                <div class="stat-val text-orange" id="statIzin">-</div>
-                <div class="stat-txt">Izin</div>
+
+            <!-- GPS & MAP SECTION -->
+            <div class="map-section">
+                <div class="section-header">
+                    <div class="section-title"><i class="fas fa-map-marker-alt text-red"></i> Posisi Anda</div>
+                    <div style="display: flex; align-items: center; gap: 8px;">
+                        <div id="gpsStatus">Non-Aktif</div>
+                        <button onclick="refreshGPS()" class="btn-refresh-gps" title="Refresh GPS">
+                            <i class="fas fa-sync-alt"></i>
+                        </button>
+                    </div>
+                </div>
+                <div id="map"></div>
+
+                <button id="btnIzin" onclick="showIzinDialog()" disabled class="btn-izin">
+                    <i class="fas fa-file-medical"></i> Pengajuan Izin / Sakit
+                </button>
             </div>
-            <div class="stat-box">
-                <div class="stat-val text-red" id="statAlpha">-</div>
-                <div class="stat-txt">Alpha</div>
+
+            <!-- STATS GRID -->
+            <div class="stats-grid" id="statsContainer" style="display:none;">
+                <div class="stat-box">
+                    <div class="stat-val text-green" id="statHadir">-</div>
+                    <div class="stat-txt">Hadir</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-val text-orange" id="statIzin">-</div>
+                    <div class="stat-txt">Izin</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-val text-red" id="statAlpha">-</div>
+                    <div class="stat-txt">Alpha</div>
+                </div>
+            </div>
+
+            <!-- ADMIN / MONITORING MENU (Hidden by default) -->
+            <div id="adminMenuContainer" style="display:none; margin-bottom: 24px;">
+                <button onclick="showMonitoringDashboard()" style="
+                    width: 100%;
+                    background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%);
+                    color: white;
+                    border: none;
+                    border-radius: var(--radius-xl);
+                    padding: 20px;
+                    display: flex;
+                    align-items: center;
+                    justify-content: space-between;
+                    box-shadow: 0 10px 25px -5px rgba(30, 58, 138, 0.4);
+                    cursor: pointer;
+                    position: relative;
+                    overflow: hidden;
+                    transition: transform 0.2s;
+                " onmousedown="this.style.transform='scale(0.98)'" onmouseup="this.style.transform='scale(1)'"
+                    onmouseleave="this.style.transform='scale(1)'">
+                    <div style="display: flex; align-items: center; gap: 16px; z-index: 2;">
+                        <div style="
+                            width: 50px; 
+                            height: 50px; 
+                            background: rgba(255,255,255,0.2); 
+                            border-radius: 14px; 
+                            display: flex; 
+                            align-items: center; 
+                            justify-content: center;
+                            backdrop-filter: blur(4px);
+                        ">
+                            <i class="fas fa-chart-pie" style="font-size: 24px;"></i>
+                        </div>
+                        <div style="text-align: left;">
+                            <div style="font-size: 16px; font-weight: 700; margin-bottom: 4px;">Monitoring Harian</div>
+                            <div style="font-size: 11px; opacity: 0.8; font-weight: 500;">Pantau kehadiran guru & staf
+                            </div>
+                        </div>
+                    </div>
+                    <div style="
+                        width: 32px; 
+                        height: 32px; 
+                        background: white; 
+                        border-radius: 50%; 
+                        display: flex; 
+                        align-items: center; 
+                        justify-content: center; 
+                        color: #1e3a8a;
+                        font-size: 14px;
+                        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+                        z-index: 2;
+                    ">
+                        <i class="fas fa-arrow-right"></i>
+                    </div>
+
+                    <!-- Decorative Circle -->
+                    <div style="
+                        position: absolute;
+                        top: -20px;
+                        right: -20px;
+                        width: 100px;
+                        height: 100px;
+                        background: rgba(255,255,255,0.1);
+                        border-radius: 50%;
+                        z-index: 1;
+                    "></div>
+                </button>
+            </div>
+
+            <!-- SETTINGS MENU (Visible to All) -->
+            <div id="settingsMenuContainer" style="margin-bottom: 10px;">
+                <button onclick="showSettingsMenu()" style="
+                    width: 100%;
+                    background: white;
+                    color: #1e293b;
+                    border: 1px solid #e2e8f0;
+                    border-radius: var(--radius-xl);
+                    padding: 16px 20px;
+                    display: flex;
+                    align-items: center;
+                    justify-content: space-between;
+                    box-shadow: 0 4px 15px rgba(0,0,0,0.03);
+                    cursor: pointer;
+                    position: relative;
+                    overflow: hidden;
+                    transition: all 0.2s;
+                " onmousedown="this.style.transform='scale(0.98)'" onmouseup="this.style.transform='scale(1)'"
+                    onmouseleave="this.style.transform='scale(1)'">
+                    <div style="display: flex; align-items: center; gap: 16px; z-index: 2;">
+                        <div style="
+                            width: 50px; 
+                            height: 50px; 
+                            background: #f8fafc; 
+                            border-radius: 14px; 
+                            display: flex; 
+                            align-items: center; 
+                            justify-content: center;
+                            color: #64748b;
+                        ">
+                            <i class="fas fa-cog" style="font-size: 24px;"></i>
+                        </div>
+                        <div style="text-align: left;">
+                            <div style="font-size: 15px; font-weight: 700; margin-bottom: 4px; color: #334155;">
+                                Pengaturan Akun</div>
+                            <div style="font-size: 11px; color: #94a3b8; font-weight: 500;">Profil, Password & Bantuan
+                            </div>
+                        </div>
+                    </div>
+                    <div style="
+                        width: 32px; 
+                        height: 32px; 
+                        background: #f1f5f9; 
+                        border-radius: 50%; 
+                        display: flex; 
+                        align-items: center; 
+                        justify-content: center; 
+                        color: #94a3b8;
+                        font-size: 12px;
+                        z-index: 2;
+                    ">
+                        <i class="fas fa-chevron-right"></i>
+                    </div>
+                </button>
+            </div>
+
+        </div>
+
+        <!-- BOTTOM NAV WITH INTEGRATED FOOTER -->
+        <div class="bottom-nav"
+            style="position:static; margin-top:10px; box-shadow:none; border:none; background:transparent;">
+            <!-- Nav buttons removed as requested, keeping footer only -->
+            <div class="nav-footer">
+                <div class="nav-footer-main">
+                    <i class="fas fa-code" style="color: #3b82f6; font-size: 11px;"></i>
+                    <div class="nav-footer-tagline" style="display:inline; margin-left:5px;">Build with passion for
+                        Education Technology.</div>
+                </div>
+                <!-- <div class="nav-footer-tagline" style="margin-bottom:4px;">Build with passion for Education Technology.</div> -->
+                <div class="nav-footer-copyright">
+                    Copyright © 2025 • All Rights Reserved • Versi 1.0 (BETA)
+                </div>
             </div>
         </div>
 
-    </div>
-
-    <!-- BOTTOM NAV WITH INTEGRATED FOOTER -->
-    <div class="bottom-nav">
-        <div class="nav-buttons">
-            <a href="#" class="nav-item active" onclick="showUnderDevelopment('Riwayat Absensi'); return false;">
-                <i class="fas fa-history"></i> Riwayat
-            </a>
-            <a href="#" class="nav-item" onclick="showUnderDevelopment('Profil Pengguna'); return false;">
-                <i class="fas fa-user"></i> Profil
-            </a>
-        </div>
-        <div class="nav-footer">
-            <div class="nav-footer-main">
-                <i class="fas fa-code" style="color: #3b82f6; font-size: 11px;"></i>
-                <span>Developed by <span class="nav-footer-author">Susanto, S. Kom</span></span>
-                <span class="separator-dot"></span>
-                <span class="nav-footer-tagline">Build with passion for Education Technology.</span>
-            </div>
-            <div class="nav-footer-copyright">
-                Copyright © 2025 • All Rights Reserved
-            </div>
-        </div>
-    </div>
+    </div> <!-- END MAIN APP -->
 
     <!-- Hidden NPSN Inject -->
     <script>
         // TERIMA NPSN DARI SERVER
         let npsn = "<?= npsn ?>";
-        if (npsn.includes('?')) npsn = null;
+        // Sanitize: handle null, undefined, template literal, empty string
+        if (!npsn || npsn === 'null' || npsn === 'undefined' || npsn.includes('?') || npsn.trim() === '') {
+            npsn = null;
+        }
 
         // ============ JS UTAMA ============
         let appData = null;
         let mapInstance = null;
         let currentPosition = null;
         let userMarker = null;
+        let userSession = null; // Store logged in user data as object {nama, email, jabatan, ...}
 
-        window.onload = function () {
-            // Hilangkan Loader
-            setTimeout(() => { document.getElementById('pageLoader').style.display = 'none'; }, 800);
-
-            updateClock();
-            setInterval(updateClock, 1000);
-
-            initMapDefault();
-
-            if (!npsn || npsn === 'undefined') {
-                const urlParams = new URLSearchParams(window.location.search);
-                const npsnUrl = urlParams.get('npsn');
-                if (npsnUrl) npsn = npsnUrl;
-            }
-
-            if (npsn && npsn.length > 4) {
-                loadSchoolData();
+        // FUNGSI UNIK ID PERANGKAT
+        function getDeviceId() {
+            let id = localStorage.getItem('absensi_device_id');
+            if (!id) {
+                // Generate ID unik yang cukup panjang
+                id = 'DEV-' + Math.random().toString(36).substring(2, 11) +
+                    '-' + Math.random().toString(36).substring(2, 11) +
+                    '-' + Date.now().toString(36);
+                localStorage.setItem('absensi_device_id', id);
+                console.log('📱 Generated NEW DeviceID:', id);
             } else {
-                Swal.fire('Error', 'Link Absensi Tidak Valid (NPSN Missing)', 'error');
+                console.log('📱 Using EXISTING DeviceID:', id);
             }
-        };
+            return id;
+        }
+
+        // KATA MOTIVASI ASN / GURU
+        const motivationQuotes = [
+            "Guru adalah lentera di tengah kegelapan, pembuka jendela dunia.",
+            "Mengabdi dengan hati, membangun peradaban melalui edukasi.",
+            "Jadilah teladan dalam karya, menebar inspirasi untuk generasi masa depan.",
+            "Setiap anak adalah harapan, setiap guru adalah jembatan menuju mimpi.",
+            "Terima kasih atas dedikasi tanpa batas untuk pendidikan Indonesia.",
+            "Melayani dengan sepenuh hati adalah kunci kemuliaan seorang ASN.",
+            "Pendidikan adalah senjata paling ampuh untuk mengubah dunia.",
+            "Guru yang baik itu bagaikan lilin, menghabiskan dirinya sendiri untuk menerangi jalan bagi orang lain."
+        ];
+
+        function setRandomQuote() {
+            const randomIndex = Math.floor(Math.random() * motivationQuotes.length);
+            const quoteElement = document.getElementById('loadingQuote');
+            if (quoteElement) {
+                quoteElement.innerText = '"' + motivationQuotes[randomIndex] + '"';
+            }
+        }
+
+        // ============ ELEGANT NOTIFICATION SYSTEM ============
+        function showElegantAlert(config) {
+            const { type, title, message, timer, showCancelButton, cancelButtonText, confirmButtonText, confirmButtonColor } = config;
+
+            let iconHtml = '';
+            let iconColor = '';
+            let bgColor = '';
+
+            const alertType = type || 'info';
+
+            if (alertType === 'success') {
+                iconHtml = '<i class="fas fa-check-circle" style="font-size:32px; color:#10b981;"></i>';
+                iconColor = '#10b981';
+                bgColor = '#ecfdf5';
+            } else if (alertType === 'error') {
+                iconHtml = '<i class="fas fa-lock" style="font-size:32px; color:#ef4444;"></i>';
+                iconColor = '#ef4444';
+                bgColor = '#fef2f2';
+            } else if (alertType === 'warning') {
+                iconHtml = '<i class="fas fa-exclamation-triangle" style="font-size:32px; color:#f59e0b;"></i>';
+                iconColor = '#f59e0b';
+                bgColor = '#fffbeb';
+            } else {
+                iconHtml = '<i class="fas fa-info-circle" style="font-size:32px; color:#3b82f6;"></i>';
+                iconColor = '#3b82f6';
+                bgColor = '#eff6ff';
+            }
+
+            return Swal.fire({
+                title: '',
+                html: `
+                    <div style="display:flex; flex-direction:column; align-items:center; gap:16px; padding-top:10px;">
+                        <div style="width:70px; height:70px; background:${bgColor}; border-radius:50%; display:flex; align-items:center; justify-content:center; box-shadow:0 10px 15px -3px ${iconColor}20;">
+                            ${iconHtml}
+                        </div>
+                        <h3 style="margin:0; font-size:18px; font-weight:700; color:#1e293b;">${title}</h3>
+                        <div style="font-size:13px; color:#64748b; line-height:1.6; padding:0 10px; text-align:center;">
+                            ${message}
+                        </div>
+                    </div>
+                `,
+                showConfirmButton: !timer || !!confirmButtonText,
+                showCancelButton: showCancelButton || false,
+                confirmButtonText: confirmButtonText || 'Mengerti',
+                cancelButtonText: cancelButtonText || 'Batal',
+                timer: timer || null,
+                timerProgressBar: !!timer,
+                buttonsStyling: false,
+                reverseButtons: true,
+                customClass: {
+                    popup: 'rounded-xl',
+                    confirmButton: 'swal2-confirm swal2-styled',
+                    cancelButton: 'swal2-cancel swal2-styled'
+                },
+                didOpen: () => {
+                    const confirmBtn = Swal.getConfirmButton();
+                    const cancelBtn = Swal.getCancelButton();
+                    const actions = Swal.getActions();
+
+                    const commonStyle = 'border-radius:14px; padding:15px; font-size:14px; font-weight:600; cursor:pointer; transition:0.2s; border:none; width:100%;';
+
+                    if (actions) {
+                        actions.style.flexDirection = 'column-reverse';
+                        actions.style.gap = '10px';
+                        actions.style.width = '100%';
+                        actions.style.padding = '0 25px 25px 25px';
+                        actions.style.marginTop = '10px';
+                    }
+
+                    if (confirmBtn) {
+                        confirmBtn.style.cssText = commonStyle + `background: ${confirmButtonColor || 'linear-gradient(135deg, #0f172a 0%, #1e3a8a 100%)'}; color: white; box-shadow: 0 10px 15px -3px rgba(15, 23, 42, 0.2);`;
+                    }
+
+                    if (cancelBtn) {
+                        cancelBtn.style.cssText = commonStyle + 'background: #f1f5f9; color: #475569;';
+                    }
+                }
+            });
+        }
+
+        // SIMPLIFIED INIT - GUARANTEED TO WORK
+        // Hide loader immediately when DOM is ready
+        document.addEventListener('DOMContentLoaded', function () {
+            console.log('🚀 DOM Ready - Starting Init');
+
+            // STEP 1: IMMEDIATELY hide loader and show login (no delays, no checks)
+            document.getElementById('pageLoader').style.display = 'none';
+            document.getElementById('mainApp').style.display = 'none';
+            document.getElementById('loginPage').style.display = 'flex';
+
+            console.log('✅ Login page displayed');
+
+            // STEP 2: Start clock
+            try {
+                updateClock();
+                setInterval(updateClock, 1000);
+            } catch (e) { console.error('Clock error:', e); }
+
+            // STEP 2.5: Initial School Data (Public)
+            if (npsn) {
+                google.script.run.withSuccessHandler(res => {
+                    if (res.success && res.data) {
+                        if (res.data.logo) updateLogos(res.data.logo);
+                    }
+                }).getSchoolPublicData(npsn);
+            }
+
+            // STEP 3: Init map (non-blocking)
+            setTimeout(() => {
+                try {
+                    if (typeof L !== 'undefined') {
+                        initMapDefault();
+                    }
+                } catch (e) { console.error('Map error:', e); }
+            }, 100);
+
+            // STEP 4: Check NPSN
+            try {
+                if (typeof npsn === 'undefined' || !npsn || npsn === '' || npsn.indexOf('?') !== -1) {
+                    const urlParams = new URLSearchParams(window.location.search);
+                    npsn = urlParams.get('npsn');
+                }
+
+                if (!npsn || npsn.length < 4) {
+                    if (typeof Swal !== 'undefined') {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Konfigurasi Error',
+                            text: 'NPSN tidak ditemukan di URL. Format: ?npsn=xxxx',
+                            allowOutsideClick: false
+                        });
+                    }
+                    return;
+                }
+
+                console.log('✅ NPSN Valid:', npsn);
+
+                // STEP 5: Check session (optional auto-login)
+                try {
+                    const savedSession = localStorage.getItem('absensi_session');
+                    if (savedSession) {
+                        userSession = JSON.parse(savedSession);
+                        if (userSession && userSession.nama) {
+                            console.log('🔄 Auto-login for:', userSession.nama);
+                            // Auto-login by loading data
+                            setTimeout(() => loadSchoolData(), 500);
+                        }
+                    }
+                } catch (e) {
+                    console.warn('Session check failed:', e);
+                    localStorage.removeItem('absensi_session');
+                }
+
+            } catch (e) {
+                console.error('Init error:', e);
+            }
+        });
 
         function updateClock() {
             const now = new Date();
@@ -790,36 +1261,255 @@
             document.getElementById('dateDisplay').innerText = now.toLocaleDateString('id-ID', options);
         }
 
+        function updateLogos(logoData) {
+            if (!logoData) return;
+            const containers = ['loginLogoContainer', 'dashLogoContainer', 'loadingLogoContainer'];
+            const icons = ['loginLogoIcon', 'dashLogoIcon', 'loadingLogoPlaceholder'];
+
+            containers.forEach((id, idx) => {
+                const container = document.getElementById(id);
+                const placeholder = document.getElementById(icons[idx]);
+                if (container) {
+                    if (placeholder) placeholder.style.display = 'none';
+                    container.classList.remove('skeleton');
+                    container.style.background = 'white';
+                    container.innerHTML = `<img src="${logoData}" class="logo-img" alt="Logo">`;
+                }
+            });
+        }
+
         // --- SISA FUNGSI JS SAMA SEPERTI SEBELUMNYA (Map, Data, Action) ---
 
         function loadSchoolData() {
+            console.log('📊 loadSchoolData called, NPSN:', npsn);
+            // Safety timeout to prevent infinite loading
+            const loadTimeout = setTimeout(() => {
+                if (document.getElementById('pageLoader').style.display === 'flex') {
+                    console.error('⏱️ Load timeout triggered!');
+                    document.getElementById('pageLoader').style.display = 'none';
+                    document.getElementById('loginPage').style.display = 'flex';
+                    showElegantAlert({ type: 'warning', title: 'Waktu Habis', message: 'Gagal memuat data dalam waktu yang ditentukan. Silakan coba lagi.' });
+                }
+            }, 15000);
+
             google.script.run
                 .withSuccessHandler(response => {
+                    console.log('📦 getSchoolData response:', response);
+                    clearTimeout(loadTimeout);
                     if (response.success) {
-                        appData = response.data;
-                        updateAppWithData();
-                        document.getElementById('btnIzin').disabled = false;
+                        try {
+                            console.log('✅ Data loaded successfully');
+                            appData = response.data;
+                            console.log('📋 appData:', appData);
+                            console.log('🎨 Calling updateAppWithData...');
+                            updateAppWithData();
+                            document.getElementById('btnIzin').disabled = false;
+                        } catch (e) {
+                            console.error("🔥 Render Error:", e);
+                            document.getElementById('pageLoader').style.display = 'none';
+                            document.getElementById('loginPage').style.display = 'flex';
+                            showElegantAlert({ type: 'error', title: 'Error Aplikasi', message: 'Terjadi kesalahan saat menampilkan data: ' + e.message });
+                        }
                     } else {
-                        Swal.fire('Error Database', response.message, 'error');
+                        console.error('❌ getSchoolData failed:', response.message);
+                        document.getElementById('pageLoader').style.display = 'none';
+                        document.getElementById('loginPage').style.display = 'flex';
+                        showElegantAlert({ type: 'error', title: 'Gagal Memuat Data', message: response.message });
                     }
                 })
                 .withFailureHandler(err => {
-                    Swal.fire('Koneksi Gagal', 'Gagal memuat data sekolah.', 'error');
+                    console.error('🔥 getSchoolData request failed:', err);
+                    clearTimeout(loadTimeout);
+                    document.getElementById('pageLoader').style.display = 'none';
+                    document.getElementById('loginPage').style.display = 'flex'; // Return to login
+                    showElegantAlert({ type: 'error', title: 'Koneksi Gagal', message: 'Gagal menghubungi server. ' + err.message });
                 })
                 .getSchoolData(npsn);
         }
 
-        function updateAppWithData() {
-            document.getElementById('schoolName').innerText = appData.config.schoolName;
-            const select = document.getElementById('selectGuru');
-            select.innerHTML = '<option value="">-- Pilih Nama Anda --</option>';
-            appData.teachers.forEach(teacher => {
-                const option = document.createElement('option');
-                option.value = teacher.nama;
-                option.textContent = teacher.nama;
-                select.appendChild(option);
+        // LOGIN HANDLER
+        function handleLogin(e) {
+            e.preventDefault();
+            console.log('🔐 Login attempt started');
+            const identifier = document.getElementById('loginEmail').value;
+            const password = document.getElementById('loginPassword').value;
+            const btn = document.getElementById('btnLogin');
+
+            console.log('🆔 Identifier:', identifier);
+            console.log('🔑 Password length:', password.length);
+            console.log('🏫 NPSN:', npsn);
+
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Memproses...';
+            btn.disabled = true;
+
+            google.script.run
+                .withSuccessHandler(res => {
+                    console.log('✅ Login response received:', res);
+                    btn.innerHTML = 'Masuk Sekarang';
+                    btn.disabled = false;
+                    if (res.success) {
+                        console.log('✅ Login SUCCESS, user data:', res.data);
+                        userSession = res.data;
+                        // Simpan session
+                        localStorage.setItem('absensi_session', JSON.stringify(userSession));
+                        console.log('💾 Session saved to localStorage');
+
+                        // Set Random Quote before loading
+                        setRandomQuote();
+
+                        // Hide login, show loader then dashboard inside loadSchoolData
+                        document.getElementById('loginPage').style.display = 'none';
+                        document.getElementById('pageLoader').style.display = 'flex';
+                        console.log('🔄 Calling loadSchoolData...');
+                        loadSchoolData();
+                    } else {
+                        console.warn('❌ Login FAILED:', res.message);
+                        showElegantAlert({
+                            type: 'error',
+                            title: 'Akses Ditolak',
+                            message: res.message
+                        });
+                    }
+                })
+                .withFailureHandler(err => {
+                    console.error('🔥 Login request FAILED:', err);
+                    btn.innerHTML = 'Masuk Sekarang';
+                    btn.disabled = false;
+                    showElegantAlert({
+                        type: 'error',
+                        title: 'Sistem Error',
+                        message: 'Gagal menghubungi server. Silakan coba beberapa saat lagi.'
+                    });
+                })
+                .validateLogin(identifier, password, npsn, getDeviceId());
+        }
+
+        function handleLogout() {
+            Swal.fire({
+                title: '',
+                html: `
+                    <div style="display:flex; flex-direction:column; align-items:center; gap:16px; padding-top:10px;">
+                        <div style="width:70px; height:70px; background:#fef2f2; border-radius:50%; display:flex; align-items:center; justify-content:center; box-shadow:0 10px 15px -3px rgba(239, 68, 68, 0.1);">
+                            <i class="fas fa-sign-out-alt" style="font-size:32px; color:#ef4444;"></i>
+                        </div>
+                        <h3 style="margin:0; font-size:18px; font-weight:700; color:#1e293b;">Konfirmasi Keluar</h3>
+                        <div style="font-size:13px; color:#64748b; line-height:1.6; padding:0 10px; text-align:center;">
+                            Apakah Anda yakin ingin keluar dari aplikasi SIKADIR?
+                        </div>
+                    </div>
+                `,
+                showCancelButton: true,
+                confirmButtonText: 'Ya, Keluar',
+                cancelButtonText: 'Batal',
+                buttonsStyling: false,
+                customClass: {
+                    popup: 'rounded-xl',
+                    confirmButton: 'swal2-confirm swal2-styled',
+                    cancelButton: 'swal2-cancel swal2-styled'
+                },
+                didOpen: () => {
+                    const confirmBtn = Swal.getConfirmButton();
+                    const cancelBtn = Swal.getCancelButton();
+
+                    confirmBtn.style.background = 'linear-gradient(135deg, #e11d48 0%, #be123c 100%)';
+                    confirmBtn.style.borderRadius = '14px';
+                    confirmBtn.style.padding = '15px 24px';
+                    confirmBtn.style.fontSize = '14px';
+                    confirmBtn.style.fontWeight = '600';
+                    confirmBtn.style.margin = '10px 5px';
+                    confirmBtn.style.border = 'none';
+                    confirmBtn.style.color = 'white';
+                    confirmBtn.style.boxShadow = '0 10px 15px -3px rgba(225, 29, 72, 0.2)';
+
+                    cancelBtn.style.backgroundColor = '#f1f5f9';
+                    cancelBtn.style.color = '#475569';
+                    cancelBtn.style.borderRadius = '14px';
+                    cancelBtn.style.padding = '15px 24px';
+                    cancelBtn.style.fontSize = '14px';
+                    cancelBtn.style.fontWeight = '600';
+                    cancelBtn.style.margin = '10px 5px';
+                    cancelBtn.style.border = 'none';
+                }
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    console.log('🚪 Logging out...');
+                    localStorage.removeItem('absensi_session');
+                    userSession = null;
+
+                    // Reset UI
+                    document.getElementById('mainApp').style.display = 'none';
+                    document.getElementById('loginPage').style.display = 'flex';
+                    document.getElementById('pageLoader').style.display = 'none';
+
+                    // Clear form inputs
+                    const emailInput = document.getElementById('loginEmail');
+                    const passInput = document.getElementById('loginPassword');
+                    if (emailInput) emailInput.value = '';
+                    if (passInput) passInput.value = '';
+
+                    // Reset button login
+                    const btnLogin = document.getElementById('btnLogin');
+                    if (btnLogin) {
+                        btnLogin.innerHTML = 'Masuk Aplikasi';
+                        btnLogin.disabled = false;
+                    }
+
+                    showElegantAlert({
+                        type: 'success',
+                        title: 'Berhasil Keluar',
+                        message: 'Sampai jumpa kembali! Selamat beristirahat.',
+                        timer: 2000
+                    });
+
+                    console.log('✅ UI Reset to Login Page');
+                }
             });
+        }
+
+        function updateAppWithData() {
+            // SHOW DASHBOARD
+            document.getElementById('pageLoader').style.display = 'none';
+            document.getElementById('loginPage').style.display = 'none';
+            document.getElementById('mainApp').style.display = 'block';
+
+            document.getElementById('schoolNpsn').innerText = (appData.config.npsn || npsn) + ' -';
+            document.getElementById('schoolName').innerText = appData.config.schoolName;
+
+            // Set User Name
+            document.getElementById('userDisplayName').innerText = userSession.nama;
+
+            // Set Logo if available in appData
+            if (appData.config.logo) {
+                updateLogos(appData.config.logo);
+            }
+
+            // Enable buttons instantly
+            document.getElementById('btnCheckIn').disabled = false;
+            document.getElementById('btnCheckOut').disabled = false;
+            document.getElementById('btnIzin').disabled = false;
+
+            // Load Stats for this user
+            loadTeacherStats(userSession.nama);
+
             updateMapToSchool();
+
+            // Check Admin Role for Monitoring Menu
+            const role = userSession.jabatan || '';
+            // Regex check for Kepala Sekolah OR Operator (case insensitive)
+            const isAdmin = /kepala sekolah|operator/i.test(role);
+            if (isAdmin) {
+                document.getElementById('adminMenuContainer').style.display = 'block';
+            } else {
+                document.getElementById('adminMenuContainer').style.display = 'none';
+            }
+
+            // Success Login Modal
+            showElegantAlert({
+                type: 'success',
+                title: 'Berhasil Masuk',
+                message: 'Selamat datang kembali! Silakan lakukan absensi.',
+                timer: 2000
+            });
         }
 
         function initMapDefault() {
@@ -859,11 +1549,10 @@
                         case err.PERMISSION_DENIED:
                             errorMsg = '🚫 Akses Ditolak';
                             detailMsg = 'Izinkan akses lokasi di browser Anda untuk menggunakan fitur absensi.';
-                            Swal.fire({
-                                icon: 'warning',
+                            showElegantAlert({
+                                type: 'warning',
                                 title: 'Akses Lokasi Dibutuhkan',
-                                text: 'Silakan izinkan akses lokasi di pengaturan browser, lalu refresh halaman ini.',
-                                confirmButtonText: 'Mengerti'
+                                message: 'Silakan izinkan akses lokasi di pengaturan browser, lalu refresh halaman ini.'
                             });
                             break;
                         case err.POSITION_UNAVAILABLE:
@@ -887,11 +1576,10 @@
                     console.warn('GPS Error Details:', detailMsg);
                 }, { enableHighAccuracy: true, timeout: 30000, maximumAge: 10000 });
             } else {
-                Swal.fire({
-                    icon: 'error',
+                showElegantAlert({
+                    type: 'error',
                     title: 'Browser Tidak Mendukung GPS',
-                    text: 'Browser Anda tidak mendukung Geolocation API. Gunakan browser modern seperti Chrome atau Firefox.',
-                    confirmButtonText: 'OK'
+                    message: 'Browser Anda tidak mendukung Geolocation API. Gunakan browser modern seperti Chrome atau Firefox.'
                 });
             }
         }
@@ -922,21 +1610,28 @@
             const dist = getDistance(currentPosition.lat, currentPosition.lng, appData.config.lat, appData.config.lng);
             const inRadius = dist <= appData.config.radius;
 
+            // Check Admin/VIP Status for UI feedback
+            const role = userSession.jabatan || '';
+            const isVIP = /kepala sekolah|operator/i.test(role);
+
             if (inRadius) {
                 statusEl.innerHTML = '✅ Di Zona Sekolah';
                 statusEl.style.color = '#10b981';
                 statusEl.style.background = '#ecfdf5';
-                // Matikan animasi jika sudah benar
                 document.querySelector('.btn-refresh-gps').classList.remove('pulse-animation');
             } else {
-                // Teks lebih informatif
-                statusEl.innerHTML = `❌ Luar Zona (${Math.round(dist)}m) <span style="font-weight:400; font-size:10px;">• Refresh?</span>`;
-                statusEl.style.color = '#b91c1c';
-                statusEl.style.background = '#fef2f2';
-                // Nyalakan animasi agar user "ngeh"
+                if (isVIP) {
+                    statusEl.innerHTML = `🔓 Luar Zona (${Math.round(dist)}m) • VIP`;
+                    statusEl.style.color = '#3b82f6';
+                    statusEl.style.background = '#eff6ff';
+                } else {
+                    statusEl.innerHTML = `❌ Luar Zona (${Math.round(dist)}m) <span style="font-weight:400; font-size:10px;">• Refresh?</span>`;
+                    statusEl.style.color = '#b91c1c';
+                    statusEl.style.background = '#fef2f2';
+                }
                 document.querySelector('.btn-refresh-gps').classList.add('pulse-animation');
             }
-            updateButtons(inRadius);
+            updateButtons(inRadius || isVIP);
         }
 
         function refreshGPS() {
@@ -956,7 +1651,7 @@
                         Swal.fire({
                             icon: 'success',
                             title: 'GPS Diperbarui',
-                            text: `Akurasi: ${Math.round(pos.coords.accuracy)}m`,
+                            text: 'Akurasi: ' + Math.round(pos.coords.accuracy) + 'm',
                             timer: 2000,
                             showConfirmButton: false,
                             toast: true,
@@ -995,9 +1690,11 @@
             document.getElementById('btnCheckOut').disabled = !hasGuru;
 
             // Izin TIDAK BUTUH Radius, cuma butuh Nama
-            document.getElementById('btnIzin').disabled = !hasGuru;
+            // document.getElementById('btnIzin').disabled = !hasGuru;
         }
 
+        // REMOVED SELECT LISTENER
+        /*
         document.getElementById('selectGuru').addEventListener('change', function () {
             if (this.value) {
                 loadTeacherStats(this.value);
@@ -1008,6 +1705,7 @@
                 updateButtons(false);
             }
         });
+        */
 
         function loadTeacherStats(teacherName) {
             google.script.run.withSuccessHandler(res => {
@@ -1053,50 +1751,138 @@
         }
 
         async function showCheckInDialog() {
-            const nama = document.getElementById('selectGuru').value;
+            const nama = userSession.nama; // Use logged in user
             console.log('🔵 Starting Check In for:', nama);
 
             // 1. CEK GPS DULU SEBELUM MULAI
             if (!appData || !currentPosition) {
-                Swal.fire('Lokasi Belum Siap', 'Tunggu sebentar sedang mencari lokasi...', 'warning');
+                showElegantAlert({ type: 'warning', title: 'Lokasi Belum Siap', message: 'Tunggu sebentar sedang mencari lokasi...' });
                 return;
             }
 
             const dist = getDistance(currentPosition.lat, currentPosition.lng, appData.config.lat, appData.config.lng);
-            if (dist > appData.config.radius) {
+            const role = userSession.jabatan || '';
+            const isVIP = /kepala sekolah|operator/i.test(role);
+
+            if (dist > appData.config.radius && !isVIP) {
                 // Tampilkan pesan edukatif + tombol refresh diarahin manual
-                Swal.fire({
-                    icon: 'warning',
+                showElegantAlert({
+                    type: 'warning',
                     title: 'Anda di Luar Zona',
-                    html: `
-                        <div style="font-size:14px; color:#475569;">
-                            Jarak ke sekolah: <strong>${Math.round(dist)} meter</strong>.<br>
-                            Maksimal: ${appData.config.radius} meter.
-                        </div>
-                        <div style="margin-top:15px; font-size:13px; background:#fff1f2; color:#be123c; padding:10px; border-radius:8px;">
-                            📍 Pastikan Anda sudah di sekolah.<br>
-                            Jika sudah, tekan tombol <strong>Refresh GPS</strong> (ikon panah putar) di atas peta.
-                        </div>
-                    `,
-                    confirmButtonText: 'Oke, Saya Cek GPS',
-                    confirmButtonColor: '#3b82f6'
+                    message: `Jarak ke sekolah: <strong>${Math.round(dist)} meter</strong>. Maksimal: ${appData.config.radius} meter.<br><br><span style="background:#fff1f2; color:#be123c; padding:8px 12px; border-radius:8px; font-size:12px; display:inline-block; width:100%; box-sizing:border-box;">📍 Pastikan Anda sudah di sekolah dan tekan tombol <strong>Refresh GPS</strong> di atas peta.</span>`,
+                    confirmButtonText: 'Oke, Saya Cek GPS'
                 });
                 return;
             }
 
+            // Custom Modern Modal for Photo
+            let photoResultFile = null;
             const { value: photoFile } = await Swal.fire({
-                title: '📸 Foto Selfie',
-                html: '<input type="file" id="cam" accept="image/*" capture="user" style="display:block; margin:20px auto">',
+                title: '',
+                html: '<div style="display:flex; flex-direction:column; align-items:center; gap:12px; padding-top:10px;">' +
+                    '<div style="text-align:center; margin-bottom:8px;">' +
+                    '<h3 style="margin:0; font-size:19px; font-weight:700; color:#0f172a; letter-spacing: -0.5px;">Konfirmasi Kehadiran</h3>' +
+                    '<p style="margin:4px 0 0 0; font-size:12px; color:#64748b;">Silakan ambil foto selfie untuk validasi</p>' +
+                    '</div>' +
+                    '<div id="photoContainer" onclick="document.getElementById(\'cam\').click()" ' +
+                    'style="width:100%; aspect-ratio:3/4; max-height:300px; background:#f8fafc; border:2px dashed #cbd5e1; border-radius:20px; ' +
+                    'display:flex; flex-direction:column; align-items:center; justify-content:center; cursor:pointer; overflow:hidden; position:relative; transition:all 0.3s; box-shadow:inset 0 2px 4px rgba(0,0,0,0.03);">' +
+                    '<div id="photoPlaceholder" style="text-align:center; padding:20px; transition:0.3s;">' +
+                    '<div style="width:64px; height:64px; background:white; border-radius:50%; display:flex; align-items:center; justify-content:center; margin:0 auto 12px; color:#3b82f6; box-shadow:0 4px 10px rgba(59, 130, 246, 0.15);">' +
+                    '<i class="fas fa-camera" style="font-size:26px;"></i>' +
+                    '</div>' +
+                    '<div style="font-size:14px; font-weight:600; color:#334155;">Buka Kamera</div>' +
+                    '<div style="font-size:11px; color:#94a3b8; margin-top:4px;">Ketuk di sini untuk mengambil foto</div>' +
+                    '</div>' +
+                    '<img id="photoPreview" style="display:none; width:100%; height:100%; object-fit:cover;">' +
+                    '<div id="retakeOverlay" style="display:none; position:absolute; bottom:0; left:0; right:0; padding:12px; background:linear-gradient(to top, rgba(0,0,0,0.6), transparent); text-align:center;">' +
+                    '<span style="font-size:11px; color:white; font-weight:500; display:flex; align-items:center; justify-content:center; gap:6px;">' +
+                    '<i class="fas fa-sync-alt"></i> Ketuk foto untuk mengulang' +
+                    '</span>' +
+                    '</div>' +
+                    '</div>' +
+                    '<input type="file" id="cam" accept="image/*" capture="user" style="display:none">' +
+                    '</div>',
                 showCancelButton: true,
+                confirmButtonText: 'Kirim Absensi',
                 cancelButtonText: 'Batal',
-                confirmButtonText: 'Lanjut',
-                didOpen: () => document.getElementById('cam').click(),
-                preConfirm: () => document.getElementById('cam').files[0] || Swal.showValidationMessage('Foto wajib!')
+                reverseButtons: true,
+                buttonsStyling: false,
+                customClass: {
+                    popup: 'rounded-xl',
+                    // We will style buttons manually in didOpen for maximum control
+                },
+                didOpen: () => {
+                    const confirmBtn = Swal.getConfirmButton();
+                    const cancelBtn = Swal.getCancelButton();
+                    const actions = Swal.getActions();
+
+                    // Apply Premium Button Styling
+                    const commonStyle = 'border-radius:14px; padding:15px; font-size:14px; font-weight:600; cursor:pointer; transition:0.2s; border:none; width:100%;';
+
+                    // Button Container (Stack vertically on mobile)
+                    actions.style.flexDirection = 'column-reverse';
+                    actions.style.gap = '10px';
+                    actions.style.width = '100%';
+                    actions.style.padding = '0 25px 25px 25px';
+                    actions.style.marginTop = '10px';
+
+                    // Cancel Button (Secondary)
+                    cancelBtn.style.cssText = commonStyle + 'background: #f1f5f9; color: #475569;';
+                    cancelBtn.onmouseover = () => cancelBtn.style.background = '#e2e8f0';
+                    cancelBtn.onmouseout = () => cancelBtn.style.background = '#f1f5f9';
+
+                    // Confirm Button (Primary)
+                    confirmBtn.style.cssText = commonStyle + 'background: linear-gradient(135deg, #0f172a 0%, #1e3a8a 100%); color: white; opacity: 0.5; pointer-events: none; box-shadow: 0 10px 15px -3px rgba(15, 23, 42, 0.2);';
+                    confirmBtn.innerHTML = '<span style="display:flex; align-items:center; justify-content:center; gap:8px;">Kirim Absensi <i class="fas fa-arrow-right"></i></span>';
+
+                    // Logic: Auto-click camera logic removed to let user see the nice UI first? 
+                    // No, UX practice for "Check In" button is usually direct action. 
+                    // Let's auto-click after a brief delay so they see the UI transition.
+                    setTimeout(() => document.getElementById('cam').click(), 400);
+
+                    // File Input Change
+                    document.getElementById('cam').addEventListener('change', function (e) {
+                        const file = e.target.files[0];
+                        if (file) {
+                            photoResultFile = file; // Save reference
+                            const reader = new FileReader();
+                            reader.onload = function (evt) {
+                                // Update UI to "Filled" state
+                                const preview = document.getElementById('photoPreview');
+                                const placeholder = document.getElementById('photoPlaceholder');
+                                const overlay = document.getElementById('retakeOverlay');
+                                const container = document.getElementById('photoContainer');
+
+                                preview.src = evt.target.result;
+                                preview.style.display = 'block';
+                                placeholder.style.display = 'none';
+                                overlay.style.display = 'block';
+                                container.style.border = 'none';
+                                container.style.boxShadow = '0 10px 30px -5px rgba(0,0,0,0.2)'; // Elevated shadow
+
+                                // Enable button
+                                confirmBtn.style.opacity = '1';
+                                confirmBtn.style.pointerEvents = 'auto';
+                            };
+                            reader.readAsDataURL(file);
+                        }
+                    });
+                },
+                preConfirm: () => {
+                    if (!photoResultFile) {
+                        Swal.showValidationMessage('Mohon ambil foto bukti kehadiran!');
+                        return false;
+                    }
+                    return photoResultFile;
+                }
             });
             if (!photoFile) return;
 
             const compressedPhoto = await compressImage(photoFile);
 
+            // NO PIN REQUIRED - Login Authentication is enough
+            /*
             const { value: pin } = await Swal.fire({
                 title: '🔐 PIN',
                 input: 'password',
@@ -1107,6 +1893,8 @@
                 confirmButtonText: 'Verifikasi'
             });
             if (!pin) return;
+            */
+            const pin = "LOGGED_IN_USER";
 
             // Late Logic
             let alasan = '';
@@ -1119,40 +1907,49 @@
             }
 
             console.log('📤 Sending Check In data to server...');
-            Swal.fire({ title: 'Proses...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
+            Swal.fire({ title: 'Proses...', allowOutsideClick: false, customClass: { popup: 'rounded-xl' }, didOpen: () => Swal.showLoading() });
             google.script.run
                 .withSuccessHandler(res => {
                     console.log('✅ Server Response:', res);
-                    Swal.fire(res.success ? 'Sukses' : 'Gagal', res.message, res.success ? 'success' : 'error');
+                    showElegantAlert({
+                        type: res.success ? 'success' : 'error',
+                        title: res.success ? 'Berhasil Presensi' : 'Gagal Presensi',
+                        message: res.message
+                    });
                 })
                 .withFailureHandler(err => {
                     console.error('❌ Server Error:', err);
-                    Swal.fire('Error', 'Gagal menghubungi server: ' + err.message, 'error');
+                    showElegantAlert({ type: 'error', title: 'Error', message: 'Gagal menghubungi server: ' + err.message });
                 })
                 .processAttendance({ tipe: 'Check In', nama, pin, lat: currentPosition.lat, lng: currentPosition.lng, foto: compressedPhoto, alasan, npsn });
         }
 
         async function showCheckOutDialog() {
-            const nama = document.getElementById('selectGuru').value;
+            const nama = userSession.nama;
 
             // 1. CEK GPS DULU
             if (!appData || !currentPosition) {
-                Swal.fire('Lokasi Belum Siap', 'Tunggu sebentar sedang mencari lokasi...', 'warning');
+                showElegantAlert({ type: 'warning', title: 'Lokasi Belum Siap', message: 'Tunggu sebentar sedang mencari lokasi...' });
                 return;
             }
 
             // Check Out sebenernya boleh dimana aja (opsional), tapi biasanya harus di sekolah juga
             // Kita samakan logicnya harus di sekolah biar konsisten
             const dist = getDistance(currentPosition.lat, currentPosition.lng, appData.config.lat, appData.config.lng);
-            if (dist > appData.config.radius) {
-                Swal.fire({
-                    icon: 'warning',
+            const role = userSession.jabatan || '';
+            const isVIP = /kepala sekolah|operator/i.test(role);
+
+            if (dist > appData.config.radius && !isVIP) {
+                showElegantAlert({
+                    type: 'warning',
                     title: 'Anda di Luar Zona',
-                    text: `Jarak Anda ${Math.round(dist)}m dari sekolah. Silakan refresh GPS jika Anda yakin sudah di lokasi.`,
+                    message: `Jarak Anda <strong>${Math.round(dist)}m</strong> dari sekolah. Silakan refresh GPS jika Anda yakin sudah di lokasi.`,
                     confirmButtonText: 'Baik'
                 });
                 return;
             }
+            // NO PIN REQUIRED
+            /*
             const { value: pin } = await Swal.fire({
                 title: '🔐 PIN Check Out',
                 input: 'password',
@@ -1163,14 +1960,21 @@
                 confirmButtonText: 'Verifikasi'
             });
             if (!pin) return;
+            */
+            const pin = "LOGGED_IN_USER";
 
-            Swal.fire({ title: 'Proses...', didOpen: () => Swal.showLoading() });
-            google.script.run.withSuccessHandler(res => Swal.fire(res.success ? 'Sukses' : 'Gagal', res.message, res.success ? 'success' : 'error'))
-                .processAttendance({ tipe: 'Check Out', nama, pin, lat: currentPosition.lat, lng: currentPosition.lng, npsn });
+            Swal.fire({ title: 'Proses...', customClass: { popup: 'rounded-xl' }, didOpen: () => Swal.showLoading() });
+            google.script.run.withSuccessHandler(res => {
+                showElegantAlert({
+                    type: res.success ? 'success' : 'error',
+                    title: res.success ? 'Berhasil Check Out' : 'Gagal Check Out',
+                    message: res.message
+                });
+            }).processAttendance({ tipe: 'Check Out', nama, pin, lat: currentPosition.lat, lng: currentPosition.lng, npsn });
         }
 
         async function showIzinDialog() {
-            const nama = document.getElementById('selectGuru').value;
+            const nama = userSession.nama;
 
             // Modern Izin Form dengan Custom HTML
             const { value: formData } = await Swal.fire({
@@ -1297,14 +2101,28 @@
                 showCancelButton: true,
                 confirmButtonText: '<i class="fas fa-paper-plane"></i> Kirim Pengajuan',
                 cancelButtonText: 'Batal',
-                confirmButtonColor: '#3b82f6',
-                cancelButtonColor: '#94a3b8',
+                buttonsStyling: false,
                 customClass: {
                     popup: 'rounded-xl',
                     confirmButton: 'swal-btn-confirm',
                     cancelButton: 'swal-btn-cancel'
                 },
                 didOpen: () => {
+                    const confirmBtn = Swal.getConfirmButton();
+                    const cancelBtn = Swal.getCancelButton();
+
+                    const commonStyle = 'border-radius:14px; padding:15px; font-size:14px; font-weight:600; cursor:pointer; transition:0.2s; border:none; width:100%;';
+
+                    confirmBtn.style.cssText = commonStyle + 'background: linear-gradient(135deg, #0f172a 0%, #1e3a8a 100%); color: white; box-shadow: 0 10px 15px -3px rgba(15, 23, 42, 0.2);';
+                    cancelBtn.style.cssText = commonStyle + 'background: #f1f5f9; color: #475569; margin-top: 10px;';
+
+                    // Update action container for vertical stacking
+                    const actions = Swal.getActions();
+                    actions.style.flexDirection = 'column-reverse';
+                    actions.style.padding = '0 25px 25px 25px';
+                    actions.style.width = '100%';
+                    actions.style.gap = '10px';
+
                     // Add event listeners untuk card selection
                     document.querySelectorAll('.izin-option').forEach(option => {
                         option.addEventListener('click', function () {
@@ -1361,6 +2179,8 @@
 
             if (!formData) return;
 
+            // NO PIN
+            /*
             const { value: pin } = await Swal.fire({
                 title: '🔐 Verifikasi PIN',
                 input: 'password',
@@ -1375,41 +2195,459 @@
                 confirmButtonText: 'Verifikasi'
             });
             if (!pin) return;
+            */
+            const pin = "LOGGED_IN_USER";
 
             console.log('📤 Sending Izin data to server...');
-            Swal.fire({ title: 'Mengirim Pengajuan...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
-            google.script.run.withSuccessHandler(res => Swal.fire(res.success ? 'Sukses' : 'Gagal', res.message, res.success ? 'success' : 'error'))
-                .processAttendance({ tipe: 'Izin', nama, pin, jenisIzin: formData.jenisIzin, alasan: formData.keterangan, npsn });
+            Swal.fire({ title: 'Mengirim Pengajuan...', allowOutsideClick: false, customClass: { popup: 'rounded-xl' }, didOpen: () => Swal.showLoading() });
+            google.script.run.withSuccessHandler(res => {
+                showElegantAlert({
+                    type: res.success ? 'success' : 'error',
+                    title: res.success ? 'Izin Terkirim' : 'Gagal Kirim Izin',
+                    message: res.message
+                });
+            }).processAttendance({ tipe: 'Izin', nama, pin, jenisIzin: formData.jenisIzin, alasan: formData.keterangan, npsn });
         }
 
-        // ============ UNDER DEVELOPMENT MODAL ============
-        function showUnderDevelopment(featureName) {
+        // ============ SETTINGS & PROFILE MANAGEMENT ============
+        async function showSettingsMenu() {
             Swal.fire({
-                icon: 'info',
-                title: 'Fitur Dalam Pengembangan',
+                title: '',
                 html: `
-                    <div style="text-align: left; padding: 10px 0;">
-                        <p style="margin-bottom: 12px; color: #475569; font-size: 14px;">
-                            <strong style="color: #0f172a;">${featureName}</strong> sedang dalam tahap pengembangan dan akan segera tersedia.
-                        </p>
-                        <div style="background: #f1f5f9; padding: 12px; border-radius: 8px; border-left: 3px solid #3b82f6;">
-                            <p style="margin: 0; font-size: 12px; color: #64748b; font-weight: 500;">
-                                <i class="fas fa-info-circle" style="color: #3b82f6;"></i> 
-                                Fitur yang akan datang:
-                            </p>
-                            <ul style="margin: 8px 0 0 20px; font-size: 12px; color: #475569; line-height: 1.8;">
-                                <li>Riwayat kehadiran lengkap dengan filter</li>
-                                <li>Profil pengguna & pengaturan akun</li>
-                                <li>Notifikasi real-time</li>
-                            </ul>
+                    <div style="display:flex; flex-direction:column; align-items:center; gap:16px; padding-top:10px;">
+                        <div style="width:70px; height:70px; background:#f1f5f9; border-radius:50%; display:flex; align-items:center; justify-content:center; box-shadow:0 10px 15px -3px rgba(15, 23, 42, 0.1);">
+                            <i class="fas fa-user-cog" style="font-size:32px; color:#1e293b;"></i>
+                        </div>
+                        <h3 style="margin:0; font-size:18px; font-weight:700; color:#1e293b;">Akun & Pengaturan</h3>
+                        <div style="width:100%; display:flex; flex-direction:column; gap:10px; margin-top:10px;">
+                            <button onclick="showProfileMenu()" style="width:100%; display:flex; align-items:center; gap:12px; padding:16px; background:#fff; border:1px solid #e2e8f0; border-radius:14px; cursor:pointer; text-align:left; transition:0.2s;">
+                                <div style="width:36px; height:36px; background:#eff6ff; border-radius:10px; display:flex; align-items:center; justify-content:center; color:#3b82f6;">
+                                    <i class="fas fa-id-card"></i>
+                                </div>
+                                <div>
+                                    <div style="font-size:14px; font-weight:600; color:#1e293b;">Profil Saya</div>
+                                    <div style="font-size:11px; color:#64748b;">Lihat detail data & ganti password</div>
+                                </div>
+                                <i class="fas fa-chevron-right" style="margin-left:auto; font-size:12px; color:#cbd5e1;"></i>
+                            </button>
+                            
+                            <button onclick="showQAMenu()" style="width:100%; display:flex; align-items:center; gap:12px; padding:16px; background:#fff; border:1px solid #e2e8f0; border-radius:14px; cursor:pointer; text-align:left; transition:0.2s;">
+                                <div style="width:36px; height:36px; background:#f0fdf4; border-radius:10px; display:flex; align-items:center; justify-content:center; color:#10b981;">
+                                    <i class="fas fa-question-circle"></i>
+                                </div>
+                                <div>
+                                    <div style="font-size:14px; font-weight:600; color:#1e293b;">Q&A & Bantuan</div>
+                                    <div style="font-size:11px; color:#64748b;">Panduan aplikasi & bantuan teknis</div>
+                                </div>
+                                <i class="fas fa-chevron-right" style="margin-left:auto; font-size:12px; color:#cbd5e1;"></i>
+                            </button>
                         </div>
                     </div>
                 `,
-                confirmButtonText: 'Mengerti',
-                confirmButtonColor: '#3b82f6',
+                showConfirmButton: false,
+                showCloseButton: true,
                 customClass: {
                     popup: 'rounded-xl'
                 }
+            });
+        }
+
+        async function showProfileMenu() {
+            Swal.fire({
+                title: '',
+                html: `
+                    <div style="display:flex; flex-direction:column; gap:16px; padding-top:10px; text-align:left;">
+                        <h3 style="margin:0; font-size:18px; font-weight:700; color:#1e293b; text-align:center;">Profil Pengguna</h3>
+                        
+                        <div style="background:#f8fafc; padding:16px; border-radius:16px; border:1px solid #f1f5f9;">
+                            <div style="margin-bottom:12px;">
+                                <label style="font-size:10px; color:#94a3b8; text-transform:uppercase; font-weight:700; letter-spacing:0.5px;">Nama Lengkap</label>
+                                <div style="font-size:14px; font-weight:600; color:#1e293b;">${userSession.nama}</div>
+                            </div>
+                            <div style="margin-bottom:12px;">
+                                <label style="font-size:10px; color:#94a3b8; text-transform:uppercase; font-weight:700; letter-spacing:0.5px;">NIP</label>
+                                <div style="font-size:14px; font-weight:600; color:#1e293b;">${userSession.nip || '-'}</div>
+                            </div>
+                            <div>
+                                <label style="font-size:10px; color:#94a3b8; text-transform:uppercase; font-weight:700; letter-spacing:0.5px;">Email Terdaftar</label>
+                                <div style="font-size:14px; font-weight:600; color:#1e293b;">${userSession.email || '-'}</div>
+                            </div>
+                        </div>
+
+                        <button onclick="showChangePasswordDialog()" style="width:100%; padding:14px; background:linear-gradient(135deg, #0f172a 0%, #1e3a8a 100%); color:white; border:none; border-radius:12px; font-weight:600; font-size:13px; cursor:pointer; box-shadow:0 4px 12px rgba(15,23,42,0.1); display:flex; align-items:center; justify-content:center; gap:8px;">
+                            <i class="fas fa-key"></i> Ganti Password Akun
+                        </button>
+                        
+                        <button onclick="showSettingsMenu()" style="width:100%; padding:12px; background:white; color:#64748b; border:1px solid #e2e8f0; border-radius:12px; font-weight:600; font-size:13px; cursor:pointer;">
+                            Kembali
+                        </button>
+                    </div>
+                `,
+                showConfirmButton: false,
+                customClass: {
+                    popup: 'rounded-xl'
+                }
+            });
+        }
+
+        async function showChangePasswordDialog() {
+            const { value: formValues } = await Swal.fire({
+                title: 'Ganti Password',
+                html:
+                    '<div style="text-align:left; padding:10px 0;">' +
+                    '<label style="font-size:12px; font-weight:600; color:#475569; display:block; margin-bottom:5px;">Password Saat Ini</label>' +
+                    '<input id="oldPass" type="password" class="swal2-input" style="width:100%; margin:0 0 15px 0; border-radius:10px; border:1px solid #cbd5e1;">' +
+                    '<label style="font-size:12px; font-weight:600; color:#475569; display:block; margin-bottom:5px;">Password Baru</label>' +
+                    '<input id="newPass" type="password" class="swal2-input" style="width:100%; margin:0 0 15px 0; border-radius:10px; border:1px solid #cbd5e1;">' +
+                    '<label style="font-size:12px; font-weight:600; color:#475569; display:block; margin-bottom:5px;">Konfirmasi Password Baru</label>' +
+                    '<input id="confirmPass" type="password" class="swal2-input" style="width:100%; margin:0; border-radius:10px; border:1px solid #cbd5e1;">' +
+                    '</div>',
+                focusConfirm: false,
+                showCancelButton: true,
+                confirmButtonText: 'Update Password',
+                cancelButtonText: 'Batal',
+                buttonsStyling: false,
+                customClass: {
+                    popup: 'rounded-xl',
+                    confirmButton: 'swal2-confirm swal2-styled',
+                    cancelButton: 'swal2-cancel swal2-styled'
+                },
+                didOpen: () => {
+                    const confirmBtn = Swal.getConfirmButton();
+                    const cancelBtn = Swal.getCancelButton();
+                    confirmBtn.style.cssText = 'border-radius:12px; padding:15px; background:linear-gradient(135deg, #10b981 0%, #059669 100%); color:white; font-weight:600; border:none; width:100%; margin-bottom:10px;';
+                    cancelBtn.style.cssText = 'border-radius:12px; padding:12px; background:#f1f5f9; color:#475569; font-weight:600; border:none; width:100%;';
+                    const actions = Swal.getActions();
+                    actions.style.flexDirection = 'column';
+                },
+                preConfirm: () => {
+                    const oldP = document.getElementById('oldPass').value;
+                    const newP = document.getElementById('newPass').value;
+                    const confP = document.getElementById('confirmPass').value;
+                    if (!oldP || !newP || !confP) {
+                        Swal.showValidationMessage('Semua kolom harus diisi!');
+                        return false;
+                    }
+                    if (newP !== confP) {
+                        Swal.showValidationMessage('Konfirmasi password tidak cocok!');
+                        return false;
+                    }
+                    if (newP.length < 5) {
+                        Swal.showValidationMessage('Password minimal 5 karakter!');
+                        return false;
+                    }
+                    return { oldP, newP };
+                }
+            });
+
+            if (formValues) {
+                Swal.fire({ title: 'Memperbarui...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
+                google.script.run
+                    .withSuccessHandler(res => {
+                        if (res.success) {
+                            showElegantAlert({
+                                type: 'success',
+                                title: 'Berhasil',
+                                message: 'Password Anda telah diperbarui. Silakan gunakan password baru pada login berikutnya.'
+                            });
+                        } else {
+                            showElegantAlert({
+                                type: 'error',
+                                title: 'Gagal',
+                                message: res.message
+                            });
+                        }
+                    })
+                    .changePassword(npsn, userSession.nama, formValues.oldP, formValues.newP, userSession.nip, userSession.email);
+            }
+        }
+
+        function showQAMenu() {
+            Swal.fire({
+                title: '',
+                html: `
+                    <div style="display:flex; flex-direction:column; gap:16px; padding-top:10px; text-align:left;">
+                        <h3 style="margin:0; font-size:18px; font-weight:700; color:#1e293b; text-align:center;">Q&A & Bantuan</h3>
+                        
+                        <div style="max-height:60vh; overflow-y:auto; padding-right:5px;">
+                            <div class="qa-item" style="margin-bottom:15px;">
+                                <div style="font-size:13px; font-weight:700; color:#1e293b; margin-bottom:5px;">Q: Bagaimana jika lupa Password?</div>
+                                <div style="font-size:12px; color:#475569; line-height:1.5;">A: Password login adalah rahasia pribadi. Jika lupa, harap hubungi <strong>Operator Sekolah</strong> untuk mereset password Anda ke default.</div>
+                            </div>
+                            
+                            <div class="qa-item" style="margin-bottom:15px;">
+                                <div style="font-size:13px; font-weight:700; color:#1e293b; margin-bottom:5px;">Q: Saya ganti HP/Device, kenapa tidak bisa login?</div>
+                                <div style="font-size:12px; color:#475569; line-height:1.5;">A: Demi keamanan, satu akun hanya bisa aktif di satu perangkat. Jika Anda berganti HP, silakan hubungi <strong>Operator Sekolah</strong> untuk mereset "Device ID" Anda agar bisa login di HP baru.</div>
+                            </div>
+                            
+                            <div class="qa-item" style="margin-bottom:15px;">
+                                <div style="font-size:13px; font-weight:700; color:#1e293b; margin-bottom:5px;">Q: Kenapa lokasi di luar zona?</div>
+                                <div style="font-size:12px; color:#475569; line-height:1.5;">A: Pastikan GPS aktif dengan akurasi tinggi. Jika masih salah, tekan tombol <strong>Refresh GPS</strong> di atas peta. Pastikan Anda berada di lingkungan sekolah.</div>
+                            </div>
+
+                            <div class="qa-item" style="margin-bottom:15px;">
+                                <div style="font-size:13px; font-weight:700; color:#1e293b; margin-bottom:5px;">Q: Muncul pesan "Lokasi Belum Siap"?</div>
+                                <div style="font-size:12px; color:#475569; line-height:1.5;">A: Artinya HP belum berhasil mengunci koordinat. <strong>Solusi:</strong> Buka Google Maps dulu sampai titik biru muncul akurat, baru kembali ke sini dan Refresh GPS.</div>
+                            </div>
+
+                            <div style="background:#eff6ff; padding:12px; border-radius:12px; border-left:4px solid #3b82f6; margin-bottom:15px;">
+                                <div style="font-size:12px; font-weight:700; color:#1e3a8a; margin-bottom:5px;"><i class="fas fa-clock"></i> Aturan Presensi:</div>
+                                <div style="font-size:11px; color:#334155; line-height:1.4;">
+                                    • <strong>Check In</strong>: Mulai pukul <strong>${appData.config.jamMasuk}</strong>. Jika lewat, wajib isi alasan.<br>
+                                    • <strong>Check Out</strong>: Setelah pukul <strong>${appData.config.jamPulang}</strong>.<br>
+                                    • <strong>Batas Izin</strong>: Maksimal pukul <strong>${appData.config.jamBatasIzin}</strong>.
+                                </div>
+                            </div>
+
+                            <!-- Lead Programmer Section -->
+                            <div style="background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%); padding: 16px; border-radius: 20px; margin-bottom: 12px; color: white; box-shadow: 0 8px 16px rgba(0,0,0,0.15); border: 1px solid rgba(255,255,255,0.05);">
+                                <div style="font-size: 10px; font-weight: 800; opacity: 0.6; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 1.5px; display: flex; align-items: center; gap: 6px;">
+                                    <i class="fas fa-terminal" style="color: #60a5fa;"></i> Lead Programmer
+                                </div>
+                                <div style="font-size: 20px; font-weight: 800; letter-spacing: 0.5px; margin-bottom: 2px;">X / CODE</div>
+                                <div style="font-size: 11px; opacity: 0.8; font-style: italic; margin-bottom: 12px; color: #94a3b8;">"Precision in every line. Education through innovation."</div>
+                                
+                                <div style="padding-top: 12px; border-top: 1px solid rgba(255,255,255,0.1); display: flex; flex-direction: column; gap: 8px;">
+                                    <div style="font-size: 11px; display: flex; align-items: center; gap: 8px; color: #cbd5e1;">
+                                        <i class="fas fa-map-marker-alt" style="color: #ef4444; width: 14px;"></i> 
+                                        Cikalongwetan, Kab. Bandung Barat
+                                    </div>
+                                    <div id="devEmailContainer" style="font-size: 11px; font-weight: 600; display: flex; align-items: center; gap: 8px; color: #60a5fa;">
+                                        <i class="fas fa-envelope" style="width: 14px;"></i> 
+                                        <span id="devEmailText">Hidden Contact</span>
+                                        <button onclick="revealEmail('devEmailText', 'susantosanto290687@gmail.com')" style="background: rgba(96, 165, 250, 0.15); border: 1px solid rgba(96, 165, 250, 0.3); padding: 2px 8px; border-radius: 6px; color: #60a5fa; font-size: 9px; cursor: pointer; font-weight: 800; text-transform: uppercase;">Reveal</button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Development Team Section -->
+                            <div style="background:#f8fafc; padding:16px; border-radius:18px; border:1px solid #e2e8f0; margin-bottom:15px;">
+                                <div style="font-size:10px; font-weight:800; color:#64748b; margin-bottom:12px; text-transform:uppercase; letter-spacing:1px; display:flex; align-items:center; gap:8px;">
+                                    <i class="fas fa-users" style="color:#3b82f6;"></i> Development Team
+                                </div>
+                                
+                                <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px;">
+                                    <div style="font-size:12px; font-weight:700; color:#1e293b; display:flex; align-items:center; gap:6px;">
+                                        <div style="width:4px; height:4px; background:#3b82f6; border-radius:50%;"></div> Santo
+                                    </div>
+                                    <div style="font-size:12px; font-weight:700; color:#1e293b; display:flex; align-items:center; gap:6px;">
+                                        <div style="width:4px; height:4px; background:#3b82f6; border-radius:50%;"></div> M. Teguh P.
+                                    </div>
+                                    <div style="font-size:12px; font-weight:700; color:#1e293b; display:flex; align-items:center; gap:6px;">
+                                        <div style="width:4px; height:4px; background:#3b82f6; border-radius:50%;"></div> Budyanto W.
+                                    </div>
+                                    <div style="font-size:12px; font-weight:700; color:#1e293b; display:flex; align-items:center; gap:6px;">
+                                        <div style="width:4px; height:4px; background:#3b82f6; border-radius:50%;"></div> Dadan R.
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div style="text-align:center; padding:10px; opacity:0.7;">
+                                <div style="font-size:11px; font-weight:800; color:#1e293b;">SIKADIR v.1.0 (BETA)</div>
+                                <div style="font-size:9px; color:#64748b; margin-top:2px;">Official Release Candidate • 2026</div>
+                            </div>
+                        </div>
+
+                        <button onclick="showSettingsMenu()" style="width:100%; padding:12px; background:white; color:#64748b; border:1px solid #e2e8f0; border-radius:12px; font-weight:600; font-size:13px; cursor:pointer;">
+                            Kembali
+                        </button>
+                    </div>
+                `,
+                showConfirmButton: false,
+                customClass: {
+                    popup: 'rounded-xl'
+                }
+            });
+        }
+
+        function maskEmail(email) {
+            if (!email || !email.includes('@')) return email || '-';
+            const [name, domain] = email.split('@');
+            if (name.length <= 4) return email;
+            return name.substring(0, 4) + '*******@' + domain;
+        }
+
+        function revealEmail(id, fullEmail) {
+            const el = document.getElementById(id);
+            const btn = event.target;
+            el.innerText = fullEmail;
+            btn.style.display = 'none';
+        }
+
+        // ============ MONITORING DASHBOARD ============
+        function showMonitoringDashboard() {
+            Swal.fire({
+                title: 'Memuat Data...',
+                html: 'Mengambil data absensi terbaru',
+                allowOutsideClick: false,
+                didOpen: () => Swal.showLoading(),
+                customClass: { popup: 'rounded-xl' }
+            });
+
+            google.script.run.withSuccessHandler(res => {
+                if (!res.success) {
+                    showElegantAlert({ type: 'error', title: 'Gagal', message: res.message });
+                    return;
+                }
+                renderMonitoringModal(res);
+            }).withFailureHandler(err => {
+                showElegantAlert({ type: 'error', title: 'Error', message: err.message });
+            }).getDailyMonitoringData(npsn);
+        }
+
+        function renderMonitoringModal(data) {
+            const stats = data.stats;
+            const list = data.list;
+
+            // Generate List HTML
+            let listHtml = '';
+            if (list.length === 0) {
+                listHtml = '<div style="text-align:center; color:#94a3b8; padding:20px;">Belum ada data guru.</div>';
+            } else {
+                list.forEach(item => {
+                    let statusColor = '#94a3b8';
+                    let statusBg = '#f1f5f9';
+                    let icon = 'fa-question';
+
+                    if (item.status === 'Hadir') {
+                        statusColor = '#10b981'; statusBg = '#ecfdf5'; icon = 'fa-check';
+                    } else if (item.status === 'Sakit') {
+                        statusColor = '#ef4444'; statusBg = '#fef2f2'; icon = 'fa-procedures';
+                    } else if (item.status === 'Izin') {
+                        statusColor = '#f59e0b'; statusBg = '#fffbeb'; icon = 'fa-file-invoice';
+                    } else if (item.status === 'Alpha') {
+                        statusColor = '#64748b'; statusBg = '#f1f5f9'; icon = 'fa-times';
+                    }
+
+                    // Detail Text
+                    let detailText = item.detail;
+                    if (item.waktu && item.waktu !== '-') {
+                        detailText += ` • ${item.waktu}`;
+                    }
+
+                    // Photo Button (if exists)
+                    let photoBtn = '';
+                    if (item.foto && item.foto !== '-' && item.foto !== 'null') {
+                        photoBtn = `
+                            <button onclick="window.open('${item.foto}', '_blank')" style="
+                                background: white; border: 1px solid #e2e8f0; width: 28px; height: 28px; 
+                                border-radius: 50%; color: #3b82f6; display: flex; align-items: center; 
+                                justify-content: center; cursor: pointer;
+                            "><i class="fas fa-camera" style="font-size:10px;"></i></button>
+                        `;
+                    }
+
+                    listHtml += `
+                        <div style="display: items-center; padding: 12px; border-bottom: 1px solid #f1f5f9; display: flex; align-items: center; gap: 12px;">
+                            <div style="
+                                width: 40px; height: 40px; border-radius: 50%; 
+                                background: ${statusBg}; color: ${statusColor};
+                                display: flex; align-items: center; justify-content: center;
+                                flex-shrink: 0; font-size: 14px;
+                            ">
+                                <i class="fas ${icon}"></i>
+                            </div>
+                            <div style="flex: 1; text-align: left;">
+                                <div style="font-size: 13px; font-weight: 700; color: #1e293b; line-height: 1.2;">${item.nama}</div>
+                                <div style="font-size: 10px; color: #64748b; margin-top: 2px;">${item.jabatan}</div>
+                                <div style="font-size: 11px; margin-top: 2px; color: ${statusColor}; font-weight: 600;">
+                                    ${item.status} <span style="font-weight: 400; color: #94a3b8;">| ${detailText}</span>
+                                </div>
+                            </div>
+                            ${photoBtn}
+                        </div>
+                    `;
+                });
+            }
+
+            Swal.fire({
+                title: '',
+                html: `
+                    <div style="text-align: left; padding: 0;">
+                        <div style="display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 12px;">
+                            <div>
+                                <h3 style="font-size: 18px; font-weight: 800; color: #1e293b; margin: 0 0 2px 0;">Monitoring Harian</h3>
+                                
+                                <div style="display: flex; align-items: center; gap: 8px;">
+                                    <span style="background: #eff6ff; color: #3b82f6; padding: 2px 8px; border-radius: 6px; font-size: 10px; font-weight: 700;">
+                                        TOTAL: ${stats.total}
+                                    </span>
+                                    <span style="font-size: 11px; color: #64748b; font-weight: 500;">
+                                        ${data.date}
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Summary Cards -->
+                        <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; margin-bottom: 12px;">
+                            <div style="background: #ecfdf5; padding: 10px 2px; border-radius: 10px; text-align: center; border: 1px solid #d1fae5;">
+                                <div style="font-size: 16px; font-weight: 800; color: #10b981; line-height: 1;">${stats.hadir}</div>
+                                <div style="font-size: 8px; color: #065f46; font-weight: 700; margin-top: 3px;">HADIR</div>
+                            </div>
+                            <div style="background: #fef2f2; padding: 10px 2px; border-radius: 10px; text-align: center; border: 1px solid #fee2e2;">
+                                <div style="font-size: 16px; font-weight: 800; color: #ef4444; line-height: 1;">${stats.sakit}</div>
+                                <div style="font-size: 8px; color: #991b1b; font-weight: 700; margin-top: 3px;">SAKIT</div>
+                            </div>
+                            <div style="background: #fffbeb; padding: 10px 2px; border-radius: 10px; text-align: center; border: 1px solid #fef3c7;">
+                                <div style="font-size: 16px; font-weight: 800; color: #f59e0b; line-height: 1;">${stats.izin}</div>
+                                <div style="font-size: 8px; color: #b45309; font-weight: 700; margin-top: 3px;">IZIN</div>
+                            </div>
+                            <div style="background: #f8fafc; padding: 10px 2px; border-radius: 10px; text-align: center; border: 1px solid #e2e8f0;">
+                                <div style="font-size: 16px; font-weight: 800; color: #64748b; line-height: 1;">${stats.alpha}</div>
+                                <div style="font-size: 8px; color: #475569; font-weight: 700; margin-top: 3px;">ALPHA</div>
+                            </div>
+                        </div>
+                        
+                        <!-- List Container -->
+                        <div style="
+                            max-height: 52vh; 
+                            overflow-y: auto; 
+                            background: white; 
+                            border-radius: 12px; 
+                            border: 1px solid #f1f5f9;
+                            box-shadow: inset 0 2px 6px rgba(0,0,0,0.015);
+                        ">
+                            ${listHtml}
+                        </div>
+                        
+                        <!-- Report Buttons -->
+                        <div style="margin-top: 12px; display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+                            <button onclick="downloadReport('mingguan')" style="
+                                padding: 12px; background: white; border: 1px solid #e2e8f0; border-radius: 12px;
+                                color: #1e293b; font-size: 10px; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px;
+                                transition: 0.2s;
+                            ">
+                                <i class="fas fa-file-excel" style="color: #3b82f6; font-size: 14px;"></i> LAP. MINGGUAN
+                            </button>
+                            <button onclick="downloadReport('bulanan')" style="
+                                padding: 12px; background: white; border: 1px solid #e2e8f0; border-radius: 12px;
+                                color: #1e293b; font-size: 10px; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px;
+                                transition: 0.2s;
+                            ">
+                                <i class="fas fa-file-excel" style="color: #10b981; font-size: 14px;"></i> LAP. BULANAN
+                            </button>
+                        </div>
+                    </div>
+                `,
+                width: '95%',
+                padding: '15px 15px 15px 15px',
+                showConfirmButton: false,
+                showCloseButton: true,
+                customClass: {
+                    popup: 'rounded-xl'
+                }
+            });
+        }
+
+        function downloadReport(type) {
+            Swal.fire({
+                icon: 'info',
+                title: 'Dalam Pengembangan',
+                text: `Fitur Download Report ${type} saat ini masih dalam tahap pengembangan oleh Tim Developer. Nantikan update selanjutnya!`,
+                confirmButtonText: 'Siap, Ditunggu!',
+                confirmButtonColor: '#3b82f6',
+                customClass: { popup: 'rounded-xl' }
             });
         }
 

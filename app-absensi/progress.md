@@ -17,8 +17,11 @@
 12. **Prasyarat Check Out**: Guru hanya dapat melakukan Check Out jika sudah melakukan Check In pada hari yang sama
 13. **Validasi Ganda Check Out**: Guru tidak dapat melakukan Check Out lebih dari sekali dalam sehari
 14. **Validasi Keterangan Izin**: Keterangan izin harus minimal 10 karakter
-15. **Validasi PIN**: Sistem memverifikasi PIN guru sebelum memproses absensi atau izin
-16. **Pembatasan Percobaan PIN**: Jika PIN salah 3 kali berturut-turut, akun guru akan dikunci selama 5 menit
+20. **Validasi PIN**: Sistem memverifikasi PIN guru sebelum memproses absensi atau izin
+21. **Pembatasan Percobaan PIN**: Jika PIN salah 3 kali berturut-turut, akun guru akan dikunci selama 5 menit
+22. **Branding Sekolah Otomatis**: Aplikasi menampilkan logo dan nama sekolah secara dinamis berdasarkan NPSN
+23. **Skeleton Loading**: Animasi skeleton saat memuat logo untuk pengalaman pengguna yang lebih halus
+24. **Loading Screen Bertema**: Menampilkan logo sekolah pada layar awal "Memuat Aplikasi"
 
 ### Fitur untuk User Administrator (di Spreadsheet)
 1. **Setup Database Awal**: Membuat struktur sheet dan data awal termasuk config, database guru, data absensi, dan jadwal kerja
@@ -114,6 +117,17 @@ Aplikasi ini dirancang untuk digunakan oleh beberapa sekolah dengan membedakan N
 3. **Update Config**: Sesuaikan data di sheet "config" dengan informasi sekolah baru (koordinat, jam kerja, dll)
 4. **Update Data Guru**: Ganti data guru di sheet "database" dengan data guru sekolah baru
 5. **Tambahkan ke Registry**: Tambahkan pasangan NPSN dan Spreadsheet ID baru ke `SCHOOL_REGISTRY` dan `SCHOOL_COORDINATES` di Code.js
-6. **Dapatkan URL Baru**: Gunakan URL Apps Script yang sama dengan parameter NPSN sekolah baru
+118. **Dapatkan URL Baru**: Gunakan URL Apps Script yang sama dengan parameter NPSN sekolah baru
+119. **Tambahkan Logo**: Simpan file `logo.png` di folder yang sama dengan spreadsheet sekolah untuk mengaktifkan branding otomatis.
 
 Dengan pendekatan ini, satu aplikasi dapat melayani banyak sekolah secara terpisah dan aman, dengan data yang terisolasi masing-masing sekolah.
+
+## Update Terbaru (Januari 2026)
+
+### Integrasi Logo & Branding
+1. **Otomatisasi Logo**: Sistem sekarang mencari file `logo.png` di folder Google Drive sekolah dan menampilkannya sebagai logo utama.
+2. **UI/UX Enhancement**:
+   - Implementasi **Skeleton Loader** pada semua kontainer logo.
+   - Perbesaran ukuran logo di halaman Login (85px), Dashboard (60px dengan zoom 1.2x), dan Loading Screen (100px).
+   - Penghapusan nama sekolah di halaman login untuk tampilan yang lebih minimalis dan profesional.
+3. **Backend logic**: Penambahan fungsi `getSchoolLogo` dan `getSchoolPublicData` untuk mendukung fetching data tanpa perlu login terlebih dahulu.
