@@ -1036,6 +1036,7 @@ function processCheckIn(data) {
 
     return {
       success: true,
+      status: status, // NEW: Kirim status (Hadir/Terlambat) ke frontend untuk trigger confetti
       message: `✅ Check In Berhasil!\n\nStatus: ${status}\nWaktu: ${Utilities.formatDate(
         timestamp,
         Session.getScriptTimeZone(),

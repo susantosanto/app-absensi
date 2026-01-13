@@ -27,6 +27,8 @@
         rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <!-- CONFETTI LIBRARY -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     <style>
         :root {
             --primary-gradient: linear-gradient(135deg, #0f172a 0%, #1e3a8a 100%);
@@ -1900,17 +1902,24 @@
         }
 
         function updateButtons(inRadius) {
-            const hasGuru = document.getElementById('selectGuru').value !== "";
+            const selectGuruElement = document.getElementById('selectGuru');
+            if (!selectGuruElement) return; // Exit if element doesn't exist
+
+            const hasGuru = selectGuruElement.value !== "";
 
             // REVISI: Tombol TIDAK dimatikan total jika luar radius
             // Tapi nanti dicek saat diklik (Smart Alert)
             // Jadi hanya disable jika belum pilih guru
 
-            document.getElementById('btnCheckIn').disabled = !hasGuru;
-            document.getElementById('btnCheckOut').disabled = !hasGuru;
+            const btnCheckIn = document.getElementById('btnCheckIn');
+            const btnCheckOut = document.getElementById('btnCheckOut');
+
+            if (btnCheckIn) btnCheckIn.disabled = !hasGuru;
+            if (btnCheckOut) btnCheckOut.disabled = !hasGuru;
 
             // Izin TIDAK BUTUH Radius, cuma butuh Nama
-            // document.getElementById('btnIzin').disabled = !hasGuru;
+            // const btnIzin = document.getElementById('btnIzin');
+            // if (btnIzin) btnIzin.disabled = !hasGuru;
         }
 
         // REMOVED SELECT LISTENER
@@ -2044,6 +2053,130 @@
             const a = Math.sin(Δφ / 2) * Math.sin(Δφ / 2) + Math.cos(φ1) * Math.cos(φ2) * Math.sin(Δλ / 2) * Math.sin(Δλ / 2);
             const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
             return R * c;
+        }
+
+        // ============ INTERACTIVE UI EFFECTS ============
+
+        // 2. Celebration Logic (Ultra-Elegant Professional Animation)
+        function triggerCelebration() {
+            // Professional and ultra-elegant confetti animation matching the app's color scheme
+            const end = Date.now() + 1500; // Extended duration for more sophisticated effect
+
+            // Define premium colors matching the app's gradient theme
+            const primaryColors = ['#10b981', '#3b82f6', '#0f172a']; // Emerald, Blue, Dark blue
+            const accentColors = ['#f0fdf4', '#eff6ff', '#f8fafc']; // Subtle highlights
+
+            // Create a more sophisticated multi-phase animation
+            const frame = () => {
+                if (Date.now() > end) return;
+
+                // Phase 1: Initial burst - Professional emerald green
+                confetti({
+                    particleCount: 2,
+                    angle: 60,
+                    spread: 30,
+                    origin: { x: 0, y: 0.8 },
+                    colors: ['#10b981'],
+                    gravity: 0.8,
+                    scalar: 1.3,
+                    shapes: ['circle'],
+                    zIndex: 30000,
+                    disableForReducedMotion: true
+                });
+
+                // Phase 1: Initial burst - Professional blue
+                confetti({
+                    particleCount: 2,
+                    angle: 120,
+                    spread: 30,
+                    origin: { x: 1, y: 0.8 },
+                    colors: ['#3b82f6'],
+                    gravity: 0.8,
+                    scalar: 1.3,
+                    shapes: ['circle'],
+                    zIndex: 30000,
+                    disableForReducedMotion: true
+                });
+
+                // Phase 2: Center elegant burst - Combination
+                confetti({
+                    particleCount: 3,
+                    angle: 90,
+                    spread: 50,
+                    origin: { x: 0.5, y: 0.8 },
+                    colors: ['#10b981', '#3b82f6', '#0f172a'],
+                    gravity: 0.7,
+                    scalar: 1.1,
+                    shapes: ['circle', 'square'],
+                    zIndex: 30000,
+                    disableForReducedMotion: true
+                });
+
+                // Phase 3: Premium accent particles
+                confetti({
+                    particleCount: 1,
+                    angle: 90,
+                    spread: 10,
+                    origin: { x: 0.5, y: 0.7 },
+                    colors: ['#ffffff'],
+                    gravity: 0.5,
+                    scalar: 1.5,
+                    shapes: ['star'],
+                    zIndex: 30001,
+                    disableForReducedMotion: true
+                });
+
+                requestAnimationFrame(frame);
+            };
+
+            frame();
+
+            // Phase 4: Sophisticated follow-up effects
+            setTimeout(() => {
+                // Elegant shimmer particles
+                confetti({
+                    particleCount: 15,
+                    angle: 90,
+                    spread: 100,
+                    origin: { x: 0.5, y: 0.6 },
+                    colors: [...primaryColors, ...accentColors],
+                    gravity: 1.0,
+                    scalar: 0.7,
+                    shapes: ['circle'],
+                    zIndex: 30000,
+                    disableForReducedMotion: true
+                });
+
+                // Premium star accents
+                confetti({
+                    particleCount: 5,
+                    angle: 90,
+                    spread: 80,
+                    origin: { x: 0.5, y: 0.5 },
+                    colors: ['#ffffff', '#10b981'],
+                    gravity: 0.8,
+                    scalar: 1.0,
+                    shapes: ['star'],
+                    zIndex: 30001,
+                    disableForReducedMotion: true
+                });
+            }, 400);
+
+            // Phase 5: Final elegant flourish
+            setTimeout(() => {
+                confetti({
+                    particleCount: 8,
+                    angle: 90,
+                    spread: 140,
+                    origin: { x: 0.5, y: 0.4 },
+                    colors: ['#10b981', '#3b82f6'],
+                    gravity: 1.2,
+                    scalar: 0.9,
+                    shapes: ['circle'],
+                    zIndex: 30000,
+                    disableForReducedMotion: true
+                });
+            }, 800);
         }
 
         // ============ ACTION FLOWS ============
@@ -2317,6 +2450,21 @@
                         title: res.success ? 'Berhasil Presensi' : 'Gagal Presensi',
                         message: res.message
                     });
+
+                    // CELEBRATION IF ON TIME (Hadir) - Ultra-Elegant Professional Notification with Animation
+                    if (res.success && res.status === 'Hadir') {
+                        // Show ultra-professional success notification
+                        showElegantAlert({
+                            type: 'success',
+                            title: '🏆 Prestasi Luar Biasa!',
+                            message: 'Selamat! Anda telah melakukan check-in tepat waktu. Dedikasi dan kedisiplinan Anda sebagai tenaga pendidik yang profesional patut diacungi jempol. Terus pertahankan semangat kerja yang luar biasa ini!',
+                            timer: 3500
+                        });
+
+                        // Trigger ultra-elegant confetti animation
+                        triggerCelebration();
+                    }
+
                     // REFRESH CARD STATUS SECARA OTOMATIS (REACT-LIKE UPDATE)
                     if (res.success) {
                         loadTeacherStats(userSession.nama);
