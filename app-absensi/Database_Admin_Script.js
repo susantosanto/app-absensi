@@ -1,3 +1,4 @@
+
 /**
  * SCRIPT ADMIN DATABASE SEKOLAH (Admin_DB.GS)
  * Script ini harus DI-COPY dan DI-PASTE ke dalam File Spreadsheet Database masing-masing sekolah.
@@ -235,6 +236,9 @@ function setupDatabase() {
         sheetConfig.appendRow(["JAM_PULANG", "14:00"]); // NEW: Jam minimal check out
         // sheetConfig.appendRow(["ADMIN_PIN", "999999"]); // NEW: PIN untuk admin override
         sheetConfig.appendRow(["NAMA_SEKOLAH", "SDN CONTOH"]); // Baris 8: Nama Sekolah
+        sheetConfig.appendRow(["JAM_PULANG_JUMAT", "10:45"]); // Baris 9: Khusus Jumat
+        sheetConfig.appendRow(["INFO_PENGUMUMAN", "Isi pengumuman di sini..."]); // Baris 10: Pesan Broadcast
+        sheetConfig.appendRow(["STATUS_PENGUMUMAN", "OFF"]); // Baris 11: ON/OFF
 
         // Style
         sheetConfig.getRange("A1:B1").setFontWeight("bold").setBackground("#cbd5e1");

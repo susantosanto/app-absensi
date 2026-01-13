@@ -418,7 +418,7 @@ function loadConfig(ss, npsn) {
   }
 
   // PENTING: Gunakan getDisplayValues() untuk menjamin hasil berupa STRING
-  const data = sheet.getRange('B1:B8').getDisplayValues();
+  const data = sheet.getRange('B1:B9').getDisplayValues();
 
   // 1. CEK HARDCODED COORDINATES DULU (Priority utama)
   Logger.log('=== LOADING COORDINATES ===');
@@ -472,6 +472,7 @@ function loadConfig(ss, npsn) {
     jamPulang: data[6][0] || '14:00',     // B7
     adminPin: '000000',                   // Pin fallback (not explicitly in image)
     namaSekolah: (data[7] && data[7][0] && data[7][0] !== "") ? data[7][0] : ss.getName(), // B8
+    jamPulangJumat: (data[8] && data[8][0]) ? data[8][0] : '11:00', // B9 (Default 11:00 jika kosong)
   };
 }
 
@@ -1095,10 +1096,18 @@ function processCheckOut(data) {
       return parseInt(p[0]) * 60 + parseInt(p[1]);
     };
 
-    if (toMin(currentTimeStr) < toMin(config.jamPulang)) {
+    // LOGIKA KHUSUS HARI JUMAT
+    const dayOfWeek = now.getDay(); // 0=Minggu, 5=Jumat, 6=Sabtu
+    let targetJamPulang = config.jamPulang;
+
+    if (dayOfWeek === 5 && config.jamPulangJumat) {
+      targetJamPulang = config.jamPulangJumat;
+    }
+
+    if (toMin(currentTimeStr) < toMin(targetJamPulang)) {
       return {
         success: false,
-        message: `Belum saatnya Check Out. Jam pulang dijadwalkan pukul ${config.jamPulang}.`,
+        message: `Belum saatnya Check Out. Jam pulang hari ini pukul ${targetJamPulang}.`,
       };
     }
 
@@ -1280,10 +1289,25 @@ function getTeacherStats(userName, npsn) {
     const now = new Date();
     const currentMonth = now.getMonth();
     const currentYear = now.getFullYear();
+    const todayStr = Utilities.formatDate(now, Session.getScriptTimeZone(), 'yyyy-MM-dd');
 
     // Count Hadir (Check In dengan status Hadir)
     let hadir = 0;
     let izin = 0;
+
+    // Cek Status Hari Kerja/Libur
+    const workDayInfo = checkIfWorkDay(ss);
+
+    // Data Status Hari Ini
+    let todayStatus = {
+      hasCheckedIn: false,
+      hasCheckedOut: false, // NEW: Deteksi Check Out
+      status: '-',     // Hadir/Terlambat
+      waktu: '-',
+      waktuPulang: '-', // NEW: Waktu Pulang
+      isLibur: !workDayInfo.isWorkDay, // NEW: Status Libur
+      liburKeterangan: workDayInfo.keterangan // NEW: Keterangan Libur
+    };
 
     const absensiData = absensiSheet.getDataRange().getValues();
     for (let i = 1; i < absensiData.length; i++) {
@@ -1294,6 +1318,20 @@ function getTeacherStats(userName, npsn) {
       const status = row[3];
       const targetName = userName ? userName.toString().trim() : '';
 
+      // Cek Status Hari Ini
+      const rowDateStr = Utilities.formatDate(timestamp, Session.getScriptTimeZone(), 'yyyy-MM-dd');
+      if (rowDateStr === todayStr && nama === targetName) {
+        if (tipe === 'Check In') {
+          todayStatus.hasCheckedIn = true;
+          todayStatus.status = status; // Hadir / Terlambat
+          todayStatus.waktu = Utilities.formatDate(timestamp, Session.getScriptTimeZone(), 'HH:mm');
+        } else if (tipe === 'Check Out') {
+          todayStatus.hasCheckedOut = true;
+          todayStatus.waktuPulang = Utilities.formatDate(timestamp, Session.getScriptTimeZone(), 'HH:mm');
+        }
+      }
+
+      // Hitung Statistik Bulanan
       if (
         timestamp.getMonth() === currentMonth &&
         timestamp.getFullYear() === currentYear &&
@@ -1335,6 +1373,7 @@ function getTeacherStats(userName, npsn) {
         hadir: hadir,
         izin: izin,
         alpha: alpha,
+        today: todayStatus // Return status hari ini
       },
     };
   } catch (error) {

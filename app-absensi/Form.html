@@ -448,6 +448,131 @@
             width: 100%;
         }
 
+        /* --- NEW STATUS INFO CARD (MODERN GLASSMORPHISM) --- */
+        .status-info-card {
+            position: relative;
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border-radius: var(--radius-xl);
+            padding: 24px;
+            margin-bottom: 24px;
+            border: 1px solid rgba(255, 255, 255, 0.6);
+            box-shadow:
+                0 10px 30px -5px rgba(0, 0, 0, 0.05),
+                inset 0 0 0 1px rgba(255, 255, 255, 0.5);
+            overflow: hidden;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            display: flex;
+            align-items: flex-start;
+            gap: 16px;
+        }
+
+        .status-info-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 4px;
+            height: 100%;
+            background: #cbd5e1;
+            /* Default gray */
+            transition: background 0.3s;
+        }
+
+        .status-icon-wrapper {
+            width: 48px;
+            height: 48px;
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            flex-shrink: 0;
+            background: white;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+        }
+
+        .status-content h4 {
+            font-size: 15px;
+            font-weight: 700;
+            margin-bottom: 6px;
+            color: var(--text-dark);
+            letter-spacing: -0.3px;
+        }
+
+        .status-content p {
+            font-size: 12px;
+            color: #64748b;
+            line-height: 1.6;
+            font-weight: 500;
+        }
+
+        /* Variants */
+        .status-card-blue::before {
+            background: #3b82f6;
+        }
+
+        .status-card-blue .status-icon-wrapper {
+            color: #3b82f6;
+            background: #eff6ff;
+        }
+
+        .status-card-green::before {
+            background: #10b981;
+        }
+
+        .status-card-green .status-icon-wrapper {
+            color: #10b981;
+            background: #ecfdf5;
+        }
+
+        .status-card-orange::before {
+            background: #f59e0b;
+        }
+
+        .status-card-orange .status-icon-wrapper {
+            color: #f59e0b;
+            background: #fffbeb;
+        }
+
+        /* NEW: Variant Purple for Check Out */
+        .status-card-purple::before {
+            background: #8b5cf6;
+        }
+
+        .status-card-purple .status-icon-wrapper {
+            color: #8b5cf6;
+            background: #f5f3ff;
+        }
+
+        /* NEW: Variant Red for Holiday */
+        .status-card-red::before {
+            background: #ef4444;
+        }
+
+        .status-card-red .status-icon-wrapper {
+            color: #ef4444;
+            background: #fef2f2;
+        }
+
+        /* Animation Entry */
+        .fade-up-enter {
+            animation: fadeUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+
+        @keyframes fadeUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
         /* STATS STATISTIK */
         .stats-grid {
             display: grid;
@@ -716,6 +841,89 @@
         .swal2-container {
             z-index: 25000 !important;
         }
+
+        /* MODERN LOADING SPINNER */
+        .modern-spinner {
+            width: 60px;
+            height: 60px;
+            position: relative;
+            margin: 0 auto;
+        }
+
+        .spinner-ring {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            border: 4px solid transparent;
+            border-top-color: #3b82f6;
+            animation: spin-modern 1s cubic-bezier(0.55, 0.055, 0.675, 0.19) infinite;
+        }
+
+        .spinner-ring:nth-child(1) {
+            border-top-color: #0f172a;
+            animation-delay: 0s;
+        }
+
+        .spinner-ring:nth-child(2) {
+            border-top-color: #3b82f6;
+            animation-delay: 0.15s;
+            width: 80%;
+            height: 80%;
+            top: 10%;
+            left: 10%;
+        }
+
+        .spinner-ring:nth-child(3) {
+            border-top-color: #10b981;
+            animation-delay: 0.3s;
+            width: 60%;
+            height: 60%;
+            top: 20%;
+            left: 20%;
+        }
+
+        @keyframes spin-modern {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        .glass-popup {
+            backdrop-filter: blur(10px) !important;
+            -webkit-backdrop-filter: blur(10px) !important;
+            border: 1px solid rgba(255, 255, 255, 0.5) !important;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25) !important;
+        }
+    </style>
+    <!-- Preload Animation Styles -->
+    <style>
+        /* Shimmer effect for loading state of the card */
+        .shimmer {
+            background: #f6f7f8;
+            background-image: linear-gradient(to right, #f6f7f8 0%, #edeef1 20%, #f6f7f8 40%, #f6f7f8 100%);
+            background-repeat: no-repeat;
+            background-size: 800px 100%;
+            animation-duration: 1s;
+            animation-fill-mode: forwards;
+            animation-iteration-count: infinite;
+            animation-name: placeholderShimmer;
+            animation-timing-function: linear;
+        }
+
+        @keyframes placeholderShimmer {
+            0% {
+                background-position: -468px 0;
+            }
+
+            100% {
+                background-position: 468px 0;
+            }
+        }
     </style>
 </head>
 
@@ -860,6 +1068,11 @@
                 </div>
             </div>
 
+            <!-- NEW STATUS INFO CARD (Replaces Stats Grid) -->
+            <div id="statusInfoContainer" style="display:none;">
+                <!-- Content injected via JS -->
+            </div>
+
             <!-- GPS & MAP SECTION -->
             <div class="map-section">
                 <div class="section-header">
@@ -876,22 +1089,6 @@
                 <button id="btnIzin" onclick="showIzinDialog()" disabled class="btn-izin">
                     <i class="fas fa-file-medical"></i> Pengajuan Izin / Sakit
                 </button>
-            </div>
-
-            <!-- STATS GRID -->
-            <div class="stats-grid" id="statsContainer" style="display:none;">
-                <div class="stat-box">
-                    <div class="stat-val text-green" id="statHadir">-</div>
-                    <div class="stat-txt">Hadir</div>
-                </div>
-                <div class="stat-box">
-                    <div class="stat-val text-orange" id="statIzin">-</div>
-                    <div class="stat-txt">Izin</div>
-                </div>
-                <div class="stat-box">
-                    <div class="stat-val text-red" id="statAlpha">-</div>
-                    <div class="stat-txt">Alpha</div>
-                </div>
             </div>
 
             <!-- ADMIN / MONITORING MENU (Hidden by default) -->
@@ -1168,6 +1365,29 @@
                         cancelBtn.style.cssText = commonStyle + 'background: #f1f5f9; color: #475569;';
                     }
                 }
+            });
+        }
+
+        // ============ MODERN LOADING SYSTEM ============
+        function showModernLoading(title = 'Memproses...', subtitle = 'Mohon tunggu sebentar') {
+            Swal.fire({
+                title: '',
+                html: `
+                    <div style="display:flex; flex-direction:column; align-items:center; padding:20px 0 10px 0;">
+                        <div class="modern-spinner">
+                            <div class="spinner-ring"></div>
+                            <div class="spinner-ring"></div>
+                            <div class="spinner-ring"></div>
+                        </div>
+                        <h3 style="margin-top:28px; font-size:18px; font-weight:700; color:#1e293b; letter-spacing:-0.5px;">${title}</h3>
+                        <p style="margin-top:8px; font-size:13px; color:#64748b; font-weight:500;">${subtitle}</p>
+                    </div>
+                `,
+                showConfirmButton: false,
+                allowOutsideClick: false,
+                customClass: { popup: 'rounded-xl glass-popup' },
+                background: 'rgba(255, 255, 255, 0.95)',
+                backdrop: `rgba(15, 23, 42, 0.6)`
             });
         }
 
@@ -1710,12 +1930,109 @@
         function loadTeacherStats(teacherName) {
             google.script.run.withSuccessHandler(res => {
                 if (res.success) {
-                    document.getElementById('statsContainer').style.display = 'grid';
-                    document.getElementById('statHadir').innerText = res.stats.hadir;
-                    document.getElementById('statIzin').innerText = res.stats.izin;
-                    document.getElementById('statAlpha').innerText = res.stats.alpha;
+                    renderStatusCard(res.stats.today);
                 }
             }).getTeacherStats(teacherName, npsn);
+        }
+
+        function renderStatusCard(todayData) {
+            const container = document.getElementById('statusInfoContainer');
+            container.style.display = 'block';
+
+            let html = '';
+            let cardClass = '';
+            let icon = '';
+
+            if (todayData.isLibur) {
+                // HARI LIBUR (Prioritas Tertinggi jika belum absen)
+                // Jika guru nekat absen di hari libur (misal piket), tetap tampilkan status absennya.
+                // Tapi jika belum absen, tampilkan info libur.
+                if (!todayData.hasCheckedIn) {
+                    cardClass = 'status-card-red';
+                    icon = '<i class="fas fa-umbrella-beach"></i>';
+
+                    const funnyQuotes = [
+                        "Libur telah tiba! Simpan RPP, keluarkan bantal. Selamat rebahan!",
+                        "Hari ini libur. Dilarang memikirkan sekolah, pikirkanlah menu makan siang yang enak.",
+                        "Selamat libur! Nikmati waktu santai sebelum Senin menyerang kembali.",
+                        "Rebahan adalah hak asasi setiap guru di hari libur. Gunakan hak Anda dengan bijak!",
+                        "Libur itu seperti mantan, datang dan pergi begitu cepat. Nikmatilah selagi ada!"
+                    ];
+                    const randomMsg = funnyQuotes[Math.floor(Math.random() * funnyQuotes.length)];
+
+                    html = `
+                        <div class="status-info-card ${cardClass} fade-up-enter">
+                            <div class="status-icon-wrapper">${icon}</div>
+                            <div class="status-content">
+                                <h4>Hari Libur: ${todayData.liburKeterangan}</h4>
+                                <p>${randomMsg}</p>
+                            </div>
+                        </div>
+                    `;
+                    container.innerHTML = html;
+                    return; // Stop di sini agar tidak tertimpa logika lain
+                }
+            }
+
+            if (todayData.hasCheckedOut) {
+                // SUDAH PULANG (Prioritas Tertinggi)
+                cardClass = 'status-card-purple';
+                icon = '<i class="fas fa-home"></i>';
+
+                html = `
+                    <div class="status-info-card ${cardClass} fade-up-enter">
+                        <div class="status-icon-wrapper">${icon}</div>
+                        <div class="status-content">
+                            <h4>Sudah Check Out</h4>
+                            <p>Anda pulang pukul <strong>${todayData.waktuPulang}</strong>. Terima kasih atas dedikasi Anda hari ini. Selamat beristirahat!</p>
+                        </div>
+                    </div>
+                `;
+            } else if (!todayData.hasCheckedIn) {
+                // BELUM CHECK IN
+                cardClass = 'status-card-blue';
+                icon = '<i class="fas fa-mug-hot"></i>';
+
+                // Motivasi Random
+                const motivations = [
+                    "Selamat pagi! Siswa Anda menanti inspirasi hari ini. Jangan lupa sarapan dan tetap semangat.",
+                    "Setiap hari adalah kesempatan baru untuk mencerdaskan kehidupan bangsa. Mari mulai dengan senyuman!",
+                    "Kehadiran Anda adalah motivasi terbesar bagi para siswa. Selamat beraktivitas!",
+                    "Guru adalah pelita. Mari nyalakan semangat belajar hari ini dengan presensi tepat waktu."
+                ];
+                const randomMsg = motivations[Math.floor(Math.random() * motivations.length)];
+
+                html = `
+                    <div class="status-info-card ${cardClass} fade-up-enter">
+                        <div class="status-icon-wrapper">${icon}</div>
+                        <div class="status-content">
+                            <h4>Belum Presensi</h4>
+                            <p>${randomMsg}</p>
+                        </div>
+                    </div>
+                `;
+            } else {
+                // SUDAH CHECK IN
+                const isLate = todayData.status === 'Terlambat';
+                cardClass = isLate ? 'status-card-orange' : 'status-card-green';
+                icon = isLate ? '<i class="fas fa-history"></i>' : '<i class="fas fa-check-circle"></i>';
+                const title = isLate ? `Presensi Masuk (Terlambat)` : `Presensi Masuk (Tepat Waktu)`;
+                const msg = isLate
+                    ? `Anda check-in pukul <strong>${todayData.waktu}</strong>. Keterlambatan bukan penghalang untuk memberikan yang terbaik hari ini.`
+                    : `Anda check-in pukul <strong>${todayData.waktu}</strong>. Luar biasa! Kedisiplinan Anda adalah teladan terbaik bagi para siswa.`;
+
+                html = `
+                    <div class="status-info-card ${cardClass} fade-up-enter">
+                        <div class="status-icon-wrapper">${icon}</div>
+                        <div class="status-content">
+                            <h4>${title}</h4>
+                            <p>${msg}</p>
+                        </div>
+                    </div>
+                `;
+            }
+
+            container.innerHTML = html;
         }
 
         function getDistance(lat1, lon1, lat2, lon2) {
@@ -1902,12 +2219,96 @@
             const [h, m] = appData.config.jamMasuk.split(':');
             const d = new Date(); d.setHours(h, m, 0);
             if (now > d) {
-                const { value: reason } = await Swal.fire({ title: '⏰ Terlambat', input: 'textarea', inputLabel: 'Alasan', inputValidator: v => !v ? 'Wajib diisi!' : null });
-                if (!reason) return; alasan = reason;
+                // Calculate late duration
+                const diffMs = now - d;
+                const diffMins = Math.floor(diffMs / 60000);
+                const diffHrs = Math.floor(diffMins / 60);
+                const remMins = diffMins % 60;
+                let lateText = `${diffMins} Menit`;
+                if (diffHrs > 0) lateText = `${diffHrs} Jam ${remMins} Menit`;
+
+                const { value: reason } = await Swal.fire({
+                    title: '',
+                    html: `
+                        <div style="display:flex; flex-direction:column; align-items:center; gap:16px; padding-top:10px;">
+                            <div style="width:70px; height:70px; background:#fff7ed; border-radius:50%; display:flex; align-items:center; justify-content:center; box-shadow:0 10px 15px -3px rgba(249, 115, 22, 0.1);">
+                                <i class="fas fa-user-clock" style="font-size:32px; color:#f97316;"></i>
+                            </div>
+                            
+                            <div style="text-align:center;">
+                                <h3 style="margin:0; font-size:18px; font-weight:700; color:#1e293b;">Konfirmasi Keterlambatan</h3>
+                                <div style="font-size:13px; color:#64748b; margin-top:4px; line-height:1.5;">
+                                    Anda terlambat <strong style="color:#f97316;">${lateText}</strong><br>dari jam masuk (${appData.config.jamMasuk}).
+                                </div>
+                            </div>
+
+                            <div style="width:100%; text-align:left;">
+                                <label style="display:block; font-size:12px; font-weight:600; color:#475569; margin-bottom:8px;">
+                                    Alasan Keterlambatan <span style="color:#ef4444;">*</span>
+                                </label>
+                                <textarea id="lateReason" placeholder="Tuliskan alasan keterlambatan Anda..." 
+                                    style="width:100%; min-height:100px; padding:12px; border-radius:12px; border:2px solid #e2e8f0; font-family:'Poppins',sans-serif; font-size:13px; color:#1e293b; outline:none; transition:all 0.2s; background:#f8fafc; resize:none;"></textarea>
+                                <div style="font-size:11px; color:#94a3b8; margin-top:6px; text-align:right;">Minimal 5 karakter</div>
+                            </div>
+                        </div>
+                    `,
+                    showCancelButton: true,
+                    confirmButtonText: 'Simpan & Lanjutkan',
+                    cancelButtonText: 'Batal',
+                    buttonsStyling: false,
+                    reverseButtons: true,
+                    customClass: {
+                        popup: 'rounded-xl'
+                    },
+                    didOpen: () => {
+                        const confirmBtn = Swal.getConfirmButton();
+                        const cancelBtn = Swal.getCancelButton();
+                        const textarea = document.getElementById('lateReason');
+                        const actions = Swal.getActions();
+
+                        // Style Buttons
+                        const commonStyle = 'border-radius:14px; padding:15px; font-size:14px; font-weight:600; cursor:pointer; transition:0.2s; border:none; width:100%;';
+
+                        // Stack buttons
+                        actions.style.flexDirection = 'column-reverse';
+                        actions.style.padding = '0 25px 25px 25px';
+                        actions.style.width = '100%';
+                        actions.style.gap = '10px';
+
+                        cancelBtn.style.cssText = commonStyle + 'background: #f1f5f9; color: #475569;';
+                        confirmBtn.style.cssText = commonStyle + 'background: linear-gradient(135deg, #0f172a 0%, #1e3a8a 100%); color: white; box-shadow: 0 10px 15px -3px rgba(15, 23, 42, 0.2);';
+
+                        // Focus effect
+                        textarea.addEventListener('focus', () => {
+                            textarea.style.borderColor = '#ef4444';
+                            textarea.style.background = '#fff';
+                            textarea.style.boxShadow = '0 0 0 4px rgba(239, 68, 68, 0.1)';
+                        });
+                        textarea.addEventListener('blur', () => {
+                            textarea.style.borderColor = '#e2e8f0';
+                            textarea.style.background = '#f8fafc';
+                            textarea.style.boxShadow = 'none';
+                        });
+
+                        // Auto focus
+                        setTimeout(() => textarea.focus(), 100);
+                    },
+                    preConfirm: () => {
+                        const val = document.getElementById('lateReason').value;
+                        if (!val || val.trim().length < 5) {
+                            Swal.showValidationMessage('Mohon isi alasan dengan jelas (min. 5 karakter)');
+                            return false;
+                        }
+                        return val;
+                    }
+                });
+
+                if (!reason) return;
+                alasan = reason;
             }
 
             console.log('📤 Sending Check In data to server...');
-            Swal.fire({ title: 'Proses...', allowOutsideClick: false, customClass: { popup: 'rounded-xl' }, didOpen: () => Swal.showLoading() });
+            showModernLoading('Mengirim Absensi', 'Sedang mengupload data & foto...');
             google.script.run
                 .withSuccessHandler(res => {
                     console.log('✅ Server Response:', res);
@@ -1916,6 +2317,10 @@
                         title: res.success ? 'Berhasil Presensi' : 'Gagal Presensi',
                         message: res.message
                     });
+                    // REFRESH CARD STATUS SECARA OTOMATIS (REACT-LIKE UPDATE)
+                    if (res.success) {
+                        loadTeacherStats(userSession.nama);
+                    }
                 })
                 .withFailureHandler(err => {
                     console.error('❌ Server Error:', err);
@@ -1963,13 +2368,17 @@
             */
             const pin = "LOGGED_IN_USER";
 
-            Swal.fire({ title: 'Proses...', customClass: { popup: 'rounded-xl' }, didOpen: () => Swal.showLoading() });
+            showModernLoading('Proses Check Out', 'Menyimpan data kepulangan...');
             google.script.run.withSuccessHandler(res => {
                 showElegantAlert({
                     type: res.success ? 'success' : 'error',
                     title: res.success ? 'Berhasil Check Out' : 'Gagal Check Out',
                     message: res.message
                 });
+                // REFRESH CARD STATUS SECARA OTOMATIS
+                if (res.success) {
+                    loadTeacherStats(userSession.nama);
+                }
             }).processAttendance({ tipe: 'Check Out', nama, pin, lat: currentPosition.lat, lng: currentPosition.lng, npsn });
         }
 
@@ -2199,13 +2608,17 @@
             const pin = "LOGGED_IN_USER";
 
             console.log('📤 Sending Izin data to server...');
-            Swal.fire({ title: 'Mengirim Pengajuan...', allowOutsideClick: false, customClass: { popup: 'rounded-xl' }, didOpen: () => Swal.showLoading() });
+            showModernLoading('Mengirim Pengajuan', 'Sedang memproses data izin...');
             google.script.run.withSuccessHandler(res => {
                 showElegantAlert({
                     type: res.success ? 'success' : 'error',
                     title: res.success ? 'Izin Terkirim' : 'Gagal Kirim Izin',
                     message: res.message
                 });
+                // REFRESH CARD STATUS SECARA OTOMATIS
+                if (res.success) {
+                    loadTeacherStats(userSession.nama);
+                }
             }).processAttendance({ tipe: 'Izin', nama, pin, jenisIzin: formData.jenisIzin, alasan: formData.keterangan, npsn });
         }
 
@@ -2341,7 +2754,7 @@
             });
 
             if (formValues) {
-                Swal.fire({ title: 'Memperbarui...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
+                showModernLoading('Memperbarui Password', 'Sedang menyimpan perubahan...');
                 google.script.run
                     .withSuccessHandler(res => {
                         if (res.success) {
@@ -2476,13 +2889,7 @@
 
         // ============ MONITORING DASHBOARD ============
         function showMonitoringDashboard() {
-            Swal.fire({
-                title: 'Memuat Data...',
-                html: 'Mengambil data absensi terbaru',
-                allowOutsideClick: false,
-                didOpen: () => Swal.showLoading(),
-                customClass: { popup: 'rounded-xl' }
-            });
+            showModernLoading('Memuat Data', 'Mengambil data absensi terbaru...');
 
             google.script.run.withSuccessHandler(res => {
                 if (!res.success) {
