@@ -27,8 +27,7 @@
         rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <!-- CONFETTI LIBRARY -->
-    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+
     <style>
         :root {
             --primary-gradient: linear-gradient(135deg, #0f172a 0%, #1e3a8a 100%);
@@ -308,6 +307,41 @@
             font-weight: 500;
         }
 
+        /* --- NEW: TIME STATUS PILL (GLASSMORPHISM) --- */
+        #timeStatusPill {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 600;
+            margin-top: 8px;
+            opacity: 0;
+            transform: translateY(-5px);
+            transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+            letter-spacing: 0.3px;
+        }
+
+        #timeStatusPill.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* Variants */
+        .pill-warning {
+            background: rgba(245, 158, 11, 0.1);
+            color: #d97706;
+            border: 1px solid rgba(245, 158, 11, 0.2);
+            box-shadow: 0 4px 10px rgba(245, 158, 11, 0.05);
+        }
+
+        .pill-info {
+            background: rgba(59, 130, 246, 0.1);
+            color: #2563eb;
+            border: 1px solid rgba(59, 130, 246, 0.2);
+        }
+
         /* TOMBOL CHECK IN / OUT (GRID) */
         .action-grid {
             display: grid;
@@ -344,6 +378,7 @@
             /* Solid Emerald */
             color: white;
             box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3);
+            border-radius: var(--radius-xl);
         }
 
         .btn-checkout {
@@ -351,15 +386,22 @@
             /* Solid Rose */
             color: white;
             box-shadow: 0 4px 15px rgba(244, 63, 94, 0.3);
+            border-radius: var(--radius-xl);
         }
 
-        /* Hover Effects */
+        /* Optimized Hover Effects for Mobile Performance */
         .btn-checkin:hover {
-            filter: brightness(1.1);
+            filter: brightness(1.05);
         }
 
         .btn-checkout:hover {
-            filter: brightness(1.1);
+            filter: brightness(1.05);
+        }
+
+        /* Subtle Active State for Better Feedback */
+        .btn-checkin:active,
+        .btn-checkout:active {
+            transform: scale(0.98);
         }
 
         .icon-box {
@@ -573,6 +615,22 @@
                 opacity: 1;
                 transform: translateY(0);
             }
+        }
+
+        /* --- HIGH PERFORMANCE ANIMATION --- */
+        /* Menggunakan Class + Transition lebih ringan daripada Keyframes kompleks untuk banyak elemen */
+        .reveal-element {
+            opacity: 0;
+            transform: translateY(30px);
+            /* Jarak geser sedikit diperjauh untuk efek dramatis tapi tetap smooth */
+            transition: opacity 0.6s cubic-bezier(0.2, 0.8, 0.2, 1), transform 0.6s cubic-bezier(0.2, 0.8, 0.2, 1);
+            will-change: opacity, transform;
+            /* Optimasi GPU untuk HP Low-end */
+        }
+
+        .reveal-element.visible {
+            opacity: 1;
+            transform: translateY(0);
         }
 
         /* STATS STATISTIK */
@@ -901,6 +959,84 @@
             border: 1px solid rgba(255, 255, 255, 0.5) !important;
             box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25) !important;
         }
+
+        /* MICRO-INTERACTIONS */
+        .micro-hover {
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        .micro-hover:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 24px rgba(0, 0, 0, 0.15) !important;
+        }
+
+        .micro-active:active {
+            transform: scale(0.95);
+        }
+
+        .pulse-once {
+            animation: pulseOnce 0.5s ease-in-out;
+        }
+
+        @keyframes pulseOnce {
+            0% {
+                transform: scale(1);
+            }
+
+            50% {
+                transform: scale(1.05);
+            }
+
+            100% {
+                transform: scale(1);
+            }
+        }
+
+        .bounce-once {
+            animation: bounceOnce 0.6s ease;
+        }
+
+        @keyframes bounceOnce {
+
+            0%,
+            20%,
+            50%,
+            80%,
+            100% {
+                transform: translateY(0);
+            }
+
+            40% {
+                transform: translateY(-10px);
+            }
+
+            60% {
+                transform: translateY(-5px);
+            }
+        }
+
+        /* TOUCH RIPPLE EFFECT */
+        .ripple-container {
+            position: relative;
+            overflow: hidden;
+            border-radius: inherit;
+        }
+
+        .ripple {
+            position: absolute;
+            border-radius: 50%;
+            background-color: rgba(255, 255, 255, 0.6);
+            transform: scale(0);
+            animation: ripple-animation 0.6s linear;
+            pointer-events: none;
+        }
+
+        @keyframes ripple-animation {
+            to {
+                transform: scale(4);
+                opacity: 0;
+            }
+        }
     </style>
     <!-- Preload Animation Styles -->
     <style>
@@ -1056,14 +1192,17 @@
                 <div class="clock-container">
                     <div id="clock">00:00</div>
                     <div id="dateDisplay">Senin, 1 Januari 2025</div>
+                    <div id="timeStatusPill" style="display:none;"></div> <!-- Placeholder Pill -->
                 </div>
 
                 <div class="action-grid">
-                    <button id="btnCheckIn" class="action-btn btn-checkin" onclick="showCheckInDialog()" disabled>
+                    <button id="btnCheckIn" class="action-btn btn-checkin ripple-container"
+                        onclick="showCheckInDialog()" disabled>
                         <div class="icon-box"><i class="fas fa-sign-in-alt"></i></div>
                         <span class="btn-label">Check In</span>
                     </button>
-                    <button id="btnCheckOut" class="action-btn btn-checkout" onclick="showCheckOutDialog()" disabled>
+                    <button id="btnCheckOut" class="action-btn btn-checkout ripple-container"
+                        onclick="showCheckOutDialog()" disabled>
                         <div class="icon-box"><i class="fas fa-sign-out-alt"></i></div>
                         <span class="btn-label">Check Out</span>
                     </button>
@@ -1253,6 +1392,7 @@
         let currentPosition = null;
         let userMarker = null;
         let userSession = null; // Store logged in user data as object {nama, email, jabatan, ...}
+        let latestAttendanceStatus = null; // Store status for countdown logic
 
         // FUNGSI UNIK ID PERANGKAT
         function getDeviceId() {
@@ -1301,19 +1441,19 @@
             const alertType = type || 'info';
 
             if (alertType === 'success') {
-                iconHtml = '<i class="fas fa-check-circle" style="font-size:32px; color:#10b981;"></i>';
+                iconHtml = '<i class="fas fa-check"></i>';
                 iconColor = '#10b981';
                 bgColor = '#ecfdf5';
             } else if (alertType === 'error') {
-                iconHtml = '<i class="fas fa-lock" style="font-size:32px; color:#ef4444;"></i>';
+                iconHtml = '<i class="fas fa-times"></i>';
                 iconColor = '#ef4444';
                 bgColor = '#fef2f2';
             } else if (alertType === 'warning') {
-                iconHtml = '<i class="fas fa-exclamation-triangle" style="font-size:32px; color:#f59e0b;"></i>';
+                iconHtml = '<i class="fas fa-exclamation"></i>';
                 iconColor = '#f59e0b';
                 bgColor = '#fffbeb';
-            } else {
-                iconHtml = '<i class="fas fa-info-circle" style="font-size:32px; color:#3b82f6;"></i>';
+            } else { // info
+                iconHtml = '<i class="fas fa-info"></i>';
                 iconColor = '#3b82f6';
                 bgColor = '#eff6ff';
             }
@@ -1322,11 +1462,11 @@
                 title: '',
                 html: `
                     <div style="display:flex; flex-direction:column; align-items:center; gap:16px; padding-top:10px;">
-                        <div style="width:70px; height:70px; background:${bgColor}; border-radius:50%; display:flex; align-items:center; justify-content:center; box-shadow:0 10px 15px -3px ${iconColor}20;">
-                            ${iconHtml}
+                        <div style="width:64px; height:64px; background:${bgColor}; border-radius:50%; display:flex; align-items:center; justify-content:center; box-shadow:0 10px 15px -3px ${iconColor}20;">
+                            <div style="font-size:28px; color:${iconColor};">${iconHtml}</div>
                         </div>
-                        <h3 style="margin:0; font-size:18px; font-weight:700; color:#1e293b;">${title}</h3>
-                        <div style="font-size:13px; color:#64748b; line-height:1.6; padding:0 10px; text-align:center;">
+                        <h3 style="margin:0; font-size:20px; font-weight:700; color:#1e293b; text-align:center;">${title}</h3>
+                        <div style="font-size:14px; color:#475569; line-height:1.6; padding:0 10px; text-align:center;">
                             ${message}
                         </div>
                     </div>
@@ -1337,10 +1477,12 @@
                 cancelButtonText: cancelButtonText || 'Batal',
                 timer: timer || null,
                 timerProgressBar: !!timer,
+                width: '360px',
+                padding: '25px 15px 25px 15px',
                 buttonsStyling: false,
                 reverseButtons: true,
                 customClass: {
-                    popup: 'rounded-xl',
+                    popup: 'rounded-xl shadow-lg',
                     confirmButton: 'swal2-confirm swal2-styled',
                     cancelButton: 'swal2-cancel swal2-styled'
                 },
@@ -1408,6 +1550,7 @@
             // STEP 2: Start clock
             try {
                 updateClock();
+                // Interval clock sudah ada, kita akan update logic di dalam updateClock
                 setInterval(updateClock, 1000);
             } catch (e) { console.error('Clock error:', e); }
 
@@ -1476,11 +1619,111 @@
             // Jam HH:MM
             const hours = String(now.getHours()).padStart(2, '0');
             const minutes = String(now.getMinutes()).padStart(2, '0');
-            document.getElementById('clock').innerText = `${hours}:${minutes}`;
+            const seconds = String(now.getSeconds()).padStart(2, '0'); // Needed for countdown calc
+
+            const clockEl = document.getElementById('clock');
+            clockEl.innerText = `${hours}:${minutes}`;
 
             // Tanggal Indonesia
             const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
             document.getElementById('dateDisplay').innerText = now.toLocaleDateString('id-ID', options);
+
+            // --- LOGIC: TIME STATUS PILL (LATE WARNING & COUNTDOWN) ---
+            updateTimeStatusPill(now, hours, minutes, seconds);
+        }
+
+        function updateTimeStatusPill(now, h, m, s) {
+            if (!appData || !appData.config) return;
+
+            const pill = document.getElementById('timeStatusPill');
+            const clockEl = document.getElementById('clock');
+
+            // Reset Style Default
+            pill.className = '';
+            pill.style.display = 'none';
+            clockEl.style.color = 'var(--text-dark)';
+            clockEl.style.textShadow = 'none';
+
+            // Helper: Convert HH:mm to Date object for today
+            const getTimeDate = (timeStr) => {
+                const [hh, mm] = timeStr.split(':');
+                const d = new Date(now);
+                d.setHours(hh, mm, 0, 0);
+                return d;
+            };
+
+            // 1. LATE WARNING LOGIC (Sebelum Check In)
+            // Cek apakah user belum check in hari ini
+            const hasCheckedIn = latestAttendanceStatus && latestAttendanceStatus.hasCheckedIn;
+
+            if (!hasCheckedIn) {
+                const jamMasuk = getTimeDate(appData.config.jamMasuk);
+                const diffMs = jamMasuk - now;
+                const diffMins = Math.floor(diffMs / 60000);
+
+                // Jika sisa waktu antara 0 sampai 30 menit (Warning Zone)
+                if (diffMs > 0 && diffMins <= 30) {
+                    pill.style.display = 'inline-flex';
+                    pill.classList.add('pill-warning', 'visible');
+                    pill.innerHTML = `<i class="fas fa-exclamation-circle"></i> ${diffMins} Menit lagi Terlambat`;
+
+                    // Efek Visual pada Jam jika < 10 menit (Urgent)
+                    if (diffMins <= 10) {
+                        clockEl.style.color = '#d97706'; // Amber
+                    }
+                    // Efek Kritis jika < 5 menit
+                    if (diffMins <= 5) {
+                        clockEl.style.color = '#ef4444'; // Red
+                        // Pulse effect manual via textShadow
+                        if (now.getSeconds() % 2 === 0) {
+                            clockEl.style.textShadow = '0 0 10px rgba(239, 68, 68, 0.3)';
+                        }
+                    }
+                    return; // Prioritas utama, stop disini
+                }
+            }
+
+            // 2. CHECK OUT COUNTDOWN LOGIC (Setelah Check In, Belum Check Out)
+            const hasCheckedOut = latestAttendanceStatus && latestAttendanceStatus.hasCheckedOut;
+
+            if (hasCheckedIn && !hasCheckedOut) {
+                // Cek Jam Pulang (Handle Jumat beda jam)
+                let jamPulangStr = appData.config.jamPulang;
+                if (now.getDay() === 5 && appData.config.jamPulangJumat) { // 5 = Jumat
+                    jamPulangStr = appData.config.jamPulangJumat;
+                }
+
+                const jamPulang = getTimeDate(jamPulangStr);
+                const diffMs = jamPulang - now;
+
+                // Jika waktu pulang belum tiba (diffMs > 0)
+                if (diffMs > 0) {
+                    const diffHrs = Math.floor(diffMs / (1000 * 60 * 60));
+                    const diffMins = Math.floor((diffMs % (1000 * 60 * 60)) / (1000 * 60));
+                    const diffSecs = Math.floor((diffMs % (1000 * 60)) / 1000);
+
+                    // Tampilkan jika sisa waktu < 2 jam (sesuai request)
+                    if (diffHrs < 2) {
+                        pill.style.display = 'inline-flex';
+                        pill.classList.add('pill-info', 'visible');
+
+                        // Format text cantik: "1j 30m 10d menuju Pulang"
+                        let timeText = '';
+                        if (diffHrs > 0) timeText += `${diffHrs}j `;
+                        timeText += `${diffMins}m ${diffSecs}d`;
+
+                        pill.innerHTML = `<i class="fas fa-hourglass-half"></i> ${timeText} menuju Pulang`;
+                    }
+                } else {
+                    // Sudah waktunya pulang!
+                    pill.style.display = 'inline-flex';
+                    pill.classList.add('pill-info', 'visible');
+                    pill.style.background = 'rgba(16, 185, 129, 0.1)'; // Green tint
+                    pill.style.color = '#059669';
+                    pill.style.borderColor = 'rgba(16, 185, 129, 0.2)';
+                    pill.innerHTML = `<i class="fas fa-door-open"></i> Waktunya Pulang!`;
+                }
+            }
         }
 
         function updateLogos(logoData) {
@@ -1689,41 +1932,68 @@
         }
 
         function updateAppWithData() {
-            // SHOW DASHBOARD
+            // STOP LOADER
             document.getElementById('pageLoader').style.display = 'none';
             document.getElementById('loginPage').style.display = 'none';
-            document.getElementById('mainApp').style.display = 'block';
 
+            const mainApp = document.getElementById('mainApp');
+            // Pastikan mainApp visible dulu agar elemen di dalamnya terbaca
+            mainApp.style.display = 'block';
+
+            // --- 1. POPULATE DATA (TANPA ANIMASI DULU) ---
             document.getElementById('schoolNpsn').innerText = (appData.config.npsn || npsn) + ' -';
             document.getElementById('schoolName').innerText = appData.config.schoolName;
-
-            // Set User Name
             document.getElementById('userDisplayName').innerText = userSession.nama;
 
-            // Set Logo if available in appData
             if (appData.config.logo) {
                 updateLogos(appData.config.logo);
             }
 
-            // Enable buttons instantly
             document.getElementById('btnCheckIn').disabled = false;
             document.getElementById('btnCheckOut').disabled = false;
             document.getElementById('btnIzin').disabled = false;
 
-            // Load Stats for this user
             loadTeacherStats(userSession.nama);
-
             updateMapToSchool();
 
-            // Check Admin Role for Monitoring Menu
             const role = userSession.jabatan || '';
-            // Regex check for Kepala Sekolah OR Operator (case insensitive)
             const isAdmin = /kepala sekolah|operator/i.test(role);
             if (isAdmin) {
                 document.getElementById('adminMenuContainer').style.display = 'block';
             } else {
                 document.getElementById('adminMenuContainer').style.display = 'none';
             }
+
+            // --- 2. PREPARE ANIMATION (High Quality & Low RAM Usage) ---
+            // Kita pilih elemen-elemen utama dashboard
+            // const heroHeader = document.querySelector('.header-bg'); // Header statis (tidak di-animasi)
+            const mainContentChildren = Array.from(document.querySelectorAll('.main-content > div'));
+            const footerNav = document.querySelector('.bottom-nav');
+
+            // Gabungkan semua elemen yang mau di-animasi dalam urutan yang benar
+            const elementsToAnimate = [...mainContentChildren, footerNav];
+
+            // Set Initial State (Hidden)
+            elementsToAnimate.forEach(el => {
+                if (el && el.style.display !== 'none') {
+                    el.classList.add('reveal-element');
+                    el.classList.remove('visible');
+                }
+            });
+
+            // --- 3. EXECUTE STAGGERED ANIMATION ---
+            // Gunakan requestAnimationFrame agar browser siap me-render frame
+            requestAnimationFrame(() => {
+                let delay = 0;
+                elementsToAnimate.forEach((el) => {
+                    if (el && el.style.display !== 'none') {
+                        setTimeout(() => {
+                            el.classList.add('visible');
+                        }, delay);
+                        delay += 100; // Delay 100ms per item (Cukup cepat tapi terlihat berurutan)
+                    }
+                });
+            });
 
             // Success Login Modal
             showElegantAlert({
@@ -1939,6 +2209,7 @@
         function loadTeacherStats(teacherName) {
             google.script.run.withSuccessHandler(res => {
                 if (res.success) {
+                    latestAttendanceStatus = res.stats.today; // Simpan status global untuk clock logic
                     renderStatusCard(res.stats.today);
                 }
             }).getTeacherStats(teacherName, npsn);
@@ -2057,127 +2328,7 @@
 
         // ============ INTERACTIVE UI EFFECTS ============
 
-        // 2. Celebration Logic (Ultra-Elegant Professional Animation)
-        function triggerCelebration() {
-            // Professional and ultra-elegant confetti animation matching the app's color scheme
-            const end = Date.now() + 1500; // Extended duration for more sophisticated effect
 
-            // Define premium colors matching the app's gradient theme
-            const primaryColors = ['#10b981', '#3b82f6', '#0f172a']; // Emerald, Blue, Dark blue
-            const accentColors = ['#f0fdf4', '#eff6ff', '#f8fafc']; // Subtle highlights
-
-            // Create a more sophisticated multi-phase animation
-            const frame = () => {
-                if (Date.now() > end) return;
-
-                // Phase 1: Initial burst - Professional emerald green
-                confetti({
-                    particleCount: 2,
-                    angle: 60,
-                    spread: 30,
-                    origin: { x: 0, y: 0.8 },
-                    colors: ['#10b981'],
-                    gravity: 0.8,
-                    scalar: 1.3,
-                    shapes: ['circle'],
-                    zIndex: 30000,
-                    disableForReducedMotion: true
-                });
-
-                // Phase 1: Initial burst - Professional blue
-                confetti({
-                    particleCount: 2,
-                    angle: 120,
-                    spread: 30,
-                    origin: { x: 1, y: 0.8 },
-                    colors: ['#3b82f6'],
-                    gravity: 0.8,
-                    scalar: 1.3,
-                    shapes: ['circle'],
-                    zIndex: 30000,
-                    disableForReducedMotion: true
-                });
-
-                // Phase 2: Center elegant burst - Combination
-                confetti({
-                    particleCount: 3,
-                    angle: 90,
-                    spread: 50,
-                    origin: { x: 0.5, y: 0.8 },
-                    colors: ['#10b981', '#3b82f6', '#0f172a'],
-                    gravity: 0.7,
-                    scalar: 1.1,
-                    shapes: ['circle', 'square'],
-                    zIndex: 30000,
-                    disableForReducedMotion: true
-                });
-
-                // Phase 3: Premium accent particles
-                confetti({
-                    particleCount: 1,
-                    angle: 90,
-                    spread: 10,
-                    origin: { x: 0.5, y: 0.7 },
-                    colors: ['#ffffff'],
-                    gravity: 0.5,
-                    scalar: 1.5,
-                    shapes: ['star'],
-                    zIndex: 30001,
-                    disableForReducedMotion: true
-                });
-
-                requestAnimationFrame(frame);
-            };
-
-            frame();
-
-            // Phase 4: Sophisticated follow-up effects
-            setTimeout(() => {
-                // Elegant shimmer particles
-                confetti({
-                    particleCount: 15,
-                    angle: 90,
-                    spread: 100,
-                    origin: { x: 0.5, y: 0.6 },
-                    colors: [...primaryColors, ...accentColors],
-                    gravity: 1.0,
-                    scalar: 0.7,
-                    shapes: ['circle'],
-                    zIndex: 30000,
-                    disableForReducedMotion: true
-                });
-
-                // Premium star accents
-                confetti({
-                    particleCount: 5,
-                    angle: 90,
-                    spread: 80,
-                    origin: { x: 0.5, y: 0.5 },
-                    colors: ['#ffffff', '#10b981'],
-                    gravity: 0.8,
-                    scalar: 1.0,
-                    shapes: ['star'],
-                    zIndex: 30001,
-                    disableForReducedMotion: true
-                });
-            }, 400);
-
-            // Phase 5: Final elegant flourish
-            setTimeout(() => {
-                confetti({
-                    particleCount: 8,
-                    angle: 90,
-                    spread: 140,
-                    origin: { x: 0.5, y: 0.4 },
-                    colors: ['#10b981', '#3b82f6'],
-                    gravity: 1.2,
-                    scalar: 0.9,
-                    shapes: ['circle'],
-                    zIndex: 30000,
-                    disableForReducedMotion: true
-                });
-            }, 800);
-        }
 
         // ============ ACTION FLOWS ============
         function compressImage(file) {
@@ -2445,24 +2596,71 @@
             google.script.run
                 .withSuccessHandler(res => {
                     console.log('✅ Server Response:', res);
-                    showElegantAlert({
-                        type: res.success ? 'success' : 'error',
-                        title: res.success ? 'Berhasil Presensi' : 'Gagal Presensi',
-                        message: res.message
-                    });
 
-                    // CELEBRATION IF ON TIME (Hadir) - Ultra-Elegant Professional Notification with Animation
-                    if (res.success && res.status === 'Hadir') {
-                        // Show ultra-professional success notification
+                    if (res.success) {
+                        // MOTIVATIONAL QUOTES LOGIC
+                        let quote = "";
+                        let titleText = "Check In Berhasil";
+
+                        if (res.status === 'Terlambat') {
+                            const lateQuotes = [
+                                "Tetap semangat! Esok adalah kesempatan baru untuk hadir lebih awal.",
+                                "Keterlambatan bukan akhir dunia, tapi pengingat untuk start lebih baik besok.",
+                                "Waktu sangat berharga bagi pendidikan. Mari kita jaga bersama esok hari.",
+                                "Jangan patah semangat. Kedisiplinan dimulai dari niat yang kuat.",
+                                "Hari ini terlambat, besok pasti tepat waktu. Semangat Pak/Bu Guru!"
+                            ];
+                            quote = lateQuotes[Math.floor(Math.random() * lateQuotes.length)];
+                            titleText = "Check In (Terlambat)";
+                        } else {
+                            const onTimeQuotes = [
+                                "Luar biasa! Ketepatan waktu Anda adalah teladan terbaik bagi siswa.",
+                                "Terima kasih telah hadir tepat waktu. Semangat mencerdaskan bangsa!",
+                                "Disiplin adalah jembatan antara cita-cita dan pencapaian. Pertahankan!",
+                                "Kehadiran Anda tepat waktu adalah energi positif bagi sekolah ini.",
+                                "Hebat! Dedikasi Anda dimulai dari datang tepat waktu."
+                            ];
+                            quote = onTimeQuotes[Math.floor(Math.random() * onTimeQuotes.length)];
+                            titleText = "Tepat Waktu! 🌟";
+                        }
+
+                        // --- NEW: Modern Summary Card for Alert ---
+                        const timeMatch = res.message.match(/Waktu: (.*)/);
+                        const timeStr = timeMatch ? timeMatch[1] : '-';
+                        const statusText = res.status;
+                        let statusColor = statusText === 'Terlambat' ? '#b45309' : '#047857';
+                        let statusBg = statusText === 'Terlambat' ? '#fffbeb' : '#ecfdf5';
+
+                        const summaryHtml = `
+                            <div style="text-align:center;">
+                                <div style="font-size: 14px; color: #64748b; line-height: 1.5; margin-bottom: 8px;">
+                                    Presensi Anda berhasil terekam pada pukul:
+                                </div>
+                                <div style="font-size: 32px; font-weight: 800; color: #1e293b; margin-bottom: 16px; font-variant-numeric: tabular-nums;">
+                                    ${timeStr}
+                                </div>
+                                <div style="background: ${statusBg}; color: ${statusColor}; padding: 8px 16px; border-radius: 20px; font-size: 13px; font-weight: 700; display: inline-block; border: 1px solid ${statusColor}30;">
+                                    STATUS: ${statusText.toUpperCase()}
+                                </div>
+                                <div style="font-style:italic; color:#64748b; font-size:13px; margin-top: 24px; border-top: 1px solid #f1f5f9; padding-top: 20px;">
+                                    "${quote}"
+                                </div>
+                            </div>
+                        `;
+
                         showElegantAlert({
                             type: 'success',
-                            title: '🏆 Prestasi Luar Biasa!',
-                            message: 'Selamat! Anda telah melakukan check-in tepat waktu. Dedikasi dan kedisiplinan Anda sebagai tenaga pendidik yang profesional patut diacungi jempol. Terus pertahankan semangat kerja yang luar biasa ini!',
-                            timer: 3500
+                            title: titleText,
+                            message: summaryHtml,
+                            timer: 4000, // Auto close 4 detik biar sempat baca quote
+                            showConfirmButton: false
                         });
-
-                        // Trigger ultra-elegant confetti animation
-                        triggerCelebration();
+                    } else {
+                        showElegantAlert({
+                            type: 'error',
+                            title: 'Gagal Presensi',
+                            message: res.message
+                        });
                     }
 
                     // REFRESH CARD STATUS SECARA OTOMATIS (REACT-LIKE UPDATE)
@@ -2518,11 +2716,41 @@
 
             showModernLoading('Proses Check Out', 'Menyimpan data kepulangan...');
             google.script.run.withSuccessHandler(res => {
-                showElegantAlert({
-                    type: res.success ? 'success' : 'error',
-                    title: res.success ? 'Berhasil Check Out' : 'Gagal Check Out',
-                    message: res.message
-                });
+                if (res.success) {
+                    // --- NEW: Modern Summary Card for Alert ---
+                    const timeMatch = res.message.match(/Waktu: (.*)/);
+                    const timeStr = timeMatch ? timeMatch[1] : '-';
+                    const quote = "Terima kasih atas dedikasi Anda hari ini. Selamat beristirahat & hati-hati di jalan!";
+
+                    const summaryHtml = `
+                        <div style="text-align:center;">
+                            <div style="font-size: 14px; color: #64748b; line-height: 1.5; margin-bottom: 8px;">
+                                Anda berhasil Check Out pada pukul:
+                            </div>
+                            <div style="font-size: 32px; font-weight: 800; color: #1e293b; margin-bottom: 16px; font-variant-numeric: tabular-nums;">
+                                ${timeStr}
+                            </div>
+                            <div style="font-style:italic; color:#64748b; font-size:13px; margin-top: 24px; border-top: 1px solid #f1f5f9; padding-top: 20px;">
+                                "${quote}"
+                            </div>
+                        </div>
+                    `;
+
+                    showElegantAlert({
+                        type: 'success',
+                        title: 'Berhasil Check Out',
+                        message: summaryHtml,
+                        timer: 3500,
+                        showConfirmButton: false
+                    });
+                } else {
+                    showElegantAlert({
+                        type: 'error',
+                        title: 'Gagal Check Out',
+                        message: res.message
+                    });
+                }
+
                 // REFRESH CARD STATUS SECARA OTOMATIS
                 if (res.success) {
                     loadTeacherStats(userSession.nama);
@@ -3034,6 +3262,69 @@
             el.innerText = fullEmail;
             btn.style.display = 'none';
         }
+
+        // ============ TOUCH FEEDBACK EFFECTS ============
+        function createRipple(event) {
+            const button = event.currentTarget;
+            const rect = button.getBoundingClientRect();
+            const size = Math.max(rect.width, rect.height);
+            const x = event.clientX - rect.left - size / 2;
+            const y = event.clientY - rect.top - size / 2;
+
+            const ripple = document.createElement('span');
+            ripple.classList.add('ripple');
+            ripple.style.width = ripple.style.height = size + 'px';
+            ripple.style.left = x + 'px';
+            ripple.style.top = y + 'px';
+
+            // Remove existing ripples
+            const existingRipples = button.getElementsByClassName('ripple');
+            for (let i = existingRipples.length - 1; i >= 0; i--) {
+                existingRipples[i].remove();
+            }
+
+            button.appendChild(ripple);
+
+            // Remove ripple after animation completes
+            setTimeout(() => {
+                if (ripple.parentNode === button) {
+                    ripple.remove();
+                }
+            }, 600);
+        }
+
+        // Add touch feedback to all interactive elements
+        function addTouchFeedback() {
+            // Add ripple effect to all buttons with click handlers
+            const buttons = document.querySelectorAll('button');
+            buttons.forEach(button => {
+                if (!button.classList.contains('ripple-container')) {
+                    button.classList.add('ripple-container');
+
+                    // Add ripple effect for touch and mouse events
+                    button.addEventListener('click', createRipple);
+                    button.addEventListener('touchstart', createRipple);
+                }
+            });
+
+            // Add ripple effect to other interactive elements
+            const interactiveElements = document.querySelectorAll('.nav-item, .btn-refresh-gps, .btn-izin');
+            interactiveElements.forEach(element => {
+                if (!element.classList.contains('ripple-container')) {
+                    element.classList.add('ripple-container');
+
+                    // Add ripple effect for touch and mouse events
+                    element.addEventListener('click', createRipple);
+                    element.addEventListener('touchstart', createRipple);
+                }
+            });
+        }
+
+        // Initialize touch feedback when DOM is loaded
+        document.addEventListener('DOMContentLoaded', function () {
+            // Existing code...
+            setTimeout(addTouchFeedback, 100); // Delay to ensure elements are rendered
+        });
 
         // ============ MONITORING DASHBOARD ============
         function showMonitoringDashboard() {

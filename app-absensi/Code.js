@@ -630,11 +630,25 @@ function validateLogin(identifier, password, npsn, currentDeviceId) {
           }
         }
       } else if (teacher.deviceId !== currentDeviceId) {
-        Logger.log('❌ DEVICE MISMATCH! Registered: ' + teacher.deviceId + ' | Current: ' + currentDeviceId);
-        return {
-          success: false,
-          message: 'Akses Ditolak. Akun Anda sudah terkunci pada HP lain.\n\nJika Anda mengganti HP, silakan hubungi Admin untuk reset kunci perangkat.'
-        };
+        // SMART DEVICE LOCK LOGIC (IOS FRIENDLY)
+        // Logika Lama: Reject jika beda device ID. Masalahnya: iPhone sering ganti ID.
+        // Logika Baru: Jika device ID *baru* ini BELUM dipake oleh guru lain (sudah dicek di poin 1 di atas),
+        // maka kita UPDATE saja lock-nya ke device baru ini. 
+        // Ini aman dari "Joki Antar Guru", karena jika device dipake guru lain, sudah kena reject di step 1.
+
+        Logger.log('🔄 SMART LOCK: Device Update Detected.');
+        Logger.log('   Old Device: ' + teacher.deviceId);
+        Logger.log('   New Device: ' + currentDeviceId);
+
+        const sheet = ss.getSheetByName('database');
+        const dataRows = sheet.getDataRange().getValues();
+        for (let i = 1; i < dataRows.length; i++) {
+          if (dataRows[i][0] === teacher.nama) {
+            sheet.getRange(i + 1, 9).setValue(currentDeviceId); // Column I (Index 9)
+            Logger.log('✅ Device ID updated for ' + teacher.nama);
+            break;
+          }
+        }
       }
 
       cache.remove(attemptKey); // Clear attempts
