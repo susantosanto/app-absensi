@@ -78,8 +78,6 @@
             background-color: var(--bg-body);
             color: var(--text-dark);
             min-height: 100vh;
-            padding-bottom: 130px;
-            /* Adjusted for compact footer */
         }
 
         /* HEADER SECTION - MELENGKUNG */
@@ -295,7 +293,7 @@
             margin-top: -50px;
             position: relative;
             z-index: 2;
-            margin-bottom: 32px;
+            margin-bottom: 20px;
             /* Extra spacer for proper spacing above bottom nav */
         }
 
@@ -1188,16 +1186,11 @@
                 <div
                     style="background:rgba(255,255,255,0.15); padding:12px 16px; border-radius:16px; backdrop-filter:blur(5px); border:1px solid rgba(255,255,255,0.2); display:flex; align-items:center; gap:12px;">
 
-                    <!-- Avatar with Upload -->
-                    <div onclick="handleChangeProfilePhoto()"
-                        style="position:relative; width:42px; height:42px; cursor:pointer; flex-shrink:0;">
+                    <!-- Avatar Display Only -->
+                    <div style="position:relative; width:42px; height:42px; flex-shrink:0;">
                         <img id="userProfileImg" src="https://cdn-icons-png.flaticon.com/512/3135/3135715.png"
                             onerror="this.onerror=null; this.src='https://cdn-icons-png.flaticon.com/512/3135/3135715.png';"
                             style="width:100%; height:100%; border-radius:50%; object-fit:cover; border:2px solid rgba(255,255,255,0.8); background:white;">
-                        <div
-                            style="position:absolute; bottom:-2px; right:-2px; width:16px; height:16px; background:#3b82f6; border-radius:50%; border:1px solid white; display:flex; align-items:center; justify-content:center; box-shadow:0 2px 4px rgba(0,0,0,0.2);">
-                            <i class="fas fa-camera" style="font-size:8px; color:white;"></i>
-                        </div>
                     </div>
                     <input type="file" id="profilePhotoInput" accept="image/*" style="display:none;"
                         onchange="handleProfilePhotoSelect(this)">
@@ -1435,7 +1428,7 @@
 
         <!-- BOTTOM NAV WITH INTEGRATED FOOTER -->
         <div class="bottom-nav"
-            style="position:static; margin-top:10px; box-shadow:none; border:none; background:transparent;">
+            style="position:static; box-shadow:none; border:none; background:transparent;">
             <!-- Nav buttons removed as requested, keeping footer only -->
             <div class="nav-footer">
                 <div class="nav-footer-main">
@@ -3375,15 +3368,55 @@
 
         // ============ SETTINGS & PROFILE MANAGEMENT ============
         async function showSettingsMenu() {
+            // Determine content for the profile circle
+            let profileContent = '';
+            let hintBadge = '';
+
+            // Check if user has a profile photo
+            if (userSession.fotoProfil && userSession.fotoProfil !== '') {
+                // Add timestamp to prevent caching issues
+                const cacheBuster = (userSession.fotoProfil.indexOf('?') > -1) ? '&t=' : '?t=';
+                profileContent = `<img id="modalSettingsProfileImg" src="${userSession.fotoProfil}${cacheBuster}${new Date().getTime()}" style="width:100%; height:100%; object-fit:cover; border-radius:50%;">`;
+            } else {
+                // Fallback icon
+                profileContent = `<i class="fas fa-user-cog" style="font-size:32px; color:#1e293b;"></i>`;
+
+                // Add Pulsing Red Dot Hint if no photo
+                hintBadge = `
+                    <div style="position:absolute; top:0; right:0; width:16px; height:16px; background:#ef4444; border:2px solid white; border-radius:50%; animation:pulse-red 2s infinite;">
+                        <i class="fas fa-exclamation" style="font-size:8px; color:white; display:flex; align-items:center; justify-content:center; height:100%;"></i>
+                    </div>
+                `;
+            }
+
             Swal.fire({
                 title: '',
                 html: `
+                    <style>
+                        @keyframes pulse-red {
+                            0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7); }
+                            70% { transform: scale(1); box-shadow: 0 0 0 10px rgba(239, 68, 68, 0); }
+                            100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
+                        }
+                    </style>
                     <div style="display:flex; flex-direction:column; align-items:center; gap:16px; padding-top:10px;">
-                        <div style="width:70px; height:70px; background:#f1f5f9; border-radius:50%; display:flex; align-items:center; justify-content:center; box-shadow:0 10px 15px -3px rgba(15, 23, 42, 0.1);">
-                            <i class="fas fa-user-cog" style="font-size:32px; color:#1e293b;"></i>
+                        
+                        <!-- Profile/Upload Circle -->
+                        <div onclick="handleChangeProfilePhoto()" style="position:relative; width:85px; height:85px; cursor:pointer;" title="Tap untuk Ganti Foto Profil">
+                            <div style="width:100%; height:100%; background:#f1f5f9; border-radius:50%; display:flex; align-items:center; justify-content:center; box-shadow:0 10px 15px -3px rgba(15, 23, 42, 0.1); border:4px solid white; overflow:hidden;">
+                                ${profileContent}
+                            </div>
+                            
+                            <!-- Camera Icon Overlay -->
+                            <div style="position:absolute; bottom:0; right:0; width:30px; height:30px; background:#3b82f6; border-radius:50%; border:2px solid white; display:flex; align-items:center; justify-content:center; box-shadow:0 2px 6px rgba(0,0,0,0.15); transition: transform 0.2s;">
+                                <i class="fas fa-camera" style="font-size:12px; color:white;"></i>
+                            </div>
+
+                            ${hintBadge}
                         </div>
 
                         <h3 style="margin:0; font-size:18px; font-weight:700; color:#1e293b;">Akun & Pengaturan</h3>
+                        
                         <div style="width:100%; display:flex; flex-direction:column; gap:10px; margin-top:10px;">
                             <button onclick="showProfileMenu()" style="width:100%; display:flex; align-items:center; gap:12px; padding:16px; background:#fff; border:1px solid #e2e8f0; border-radius:14px; cursor:pointer; text-align:left; transition:0.2s;">
                                 <div style="width:36px; height:36px; background:#eff6ff; border-radius:10px; display:flex; align-items:center; justify-content:center; color:#3b82f6;">
@@ -3398,11 +3431,11 @@
                             
                             <button onclick="showQAMenu()" style="width:100%; display:flex; align-items:center; gap:12px; padding:16px; background:#fff; border:1px solid #e2e8f0; border-radius:14px; cursor:pointer; text-align:left; transition:0.2s;">
                                 <div style="width:36px; height:36px; background:#f0fdf4; border-radius:10px; display:flex; align-items:center; justify-content:center; color:#10b981;">
-                                    <i class="fas fa-question-circle"></i>
+                                    <i class="fas fa-circle-info"></i>
                                 </div>
                                 <div>
-                                    <div style="font-size:14px; font-weight:600; color:#1e293b;">Q&A & Bantuan</div>
-                                    <div style="font-size:11px; color:#64748b;">Panduan aplikasi & bantuan teknis</div>
+                                    <div style="font-size:14px; font-weight:600; color:#1e293b;">Pusat Informasi & Bantuan</div>
+                                    <div style="font-size:11px; color:#64748b;">Panduan, FAQ & Info Pengembang Aplikasi</div>
                                 </div>
                                 <i class="fas fa-chevron-right" style="margin-left:auto; font-size:12px; color:#cbd5e1;"></i>
                             </button>
