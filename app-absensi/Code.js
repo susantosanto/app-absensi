@@ -247,7 +247,7 @@ function doGet(e) {
 
   return template
     .evaluate()
-    .setTitle('SIKADIR v.1')
+    .setTitle('SIKADIR v.2.0')
     .addMetaTag('viewport', 'width=device-width, initial-scale=1')
     .setXFrameOptionsMode(HtmlService.XFrameOptionsMode.ALLOWALL);
 }
@@ -503,7 +503,8 @@ function loadTeachers(ss) {
         password: row[5],       // Kolom F: Password
         pin: row[6],            // Kolom G: PIN
         lastCheckIn: row[7],    // Kolom H: LastCheckInDate
-        deviceId: row[8]        // Kolom I: DeviceID (NEW)
+        deviceId: row[8],       // Kolom I: DeviceID (NEW)
+        fotoProfil: row[9]      // Kolom J: Foto Profil (NEW)
       });
     }
   }
@@ -660,7 +661,8 @@ function validateLogin(identifier, password, npsn, currentDeviceId) {
           jabatan: teacher.jabatan,
           unitKerja: teacher.unitKerja,
           email: teacher.email,
-          isAdmin: teacher.nama.toLowerCase().includes('admin') // Simple Admin Check
+          fotoProfil: teacher.fotoProfil, // Add Foto Profil
+          isAdmin: teacher.nama.toLowerCase().includes('admin')
         }
       };
     } else {
@@ -724,11 +726,21 @@ function uploadPhotoToDrive(base64Data, fileName, npsn) {
     // }, file.getId());
 
     // Get shareable URL
-    const fileUrl = file.getUrl();
-    Logger.log('File URL: ' + fileUrl);
+    const fileId = file.getId();
+    // Use the robust thumbnail link. This is more reliable for immediate embedding
+    // than direct content links, as it's designed for web display.
+    const directUrl = `https://drive.google.com/thumbnail?id=${fileId}&sz=w256-h256`;
+    Logger.log('Thumbnail URL generated: ' + directUrl);
+
+    // --- CRITICAL FIX ---
+    // Add a small delay to allow Google Drive permissions to propagate.
+    // This prevents a race condition where the URL is accessed before it's public.
+    Utilities.sleep(2500); // Wait 2.5 seconds (Increased for higher reliability)
+    Logger.log('Waited 2.5s for permission propagation.');
+
     Logger.log('===== UPLOAD PHOTO SUCCESS =====');
 
-    return fileUrl;
+    return directUrl; // Return the direct image URL
   } catch (error) {
     Logger.log('===== UPLOAD PHOTO FAILED =====');
     Logger.log('Error Type: ' + error.name);
@@ -1143,6 +1155,16 @@ function processCheckOut(data) {
       '-',
     ]);
 
+    // CEK APAKAH BESOK LIBUR? (Fitur Notifikasi Menarik)
+    const tomorrow = new Date();
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    const tomorrowStatus = getWorkDayStatus(ss, tomorrow);
+
+    let holidayMessage = null;
+    if (!tomorrowStatus.isWorkDay) {
+      holidayMessage = `Besok adalah hari libur (${tomorrowStatus.keterangan}). Selamat beristirahat dan nikmati waktu luang Anda!`;
+    }
+
     return {
       success: true,
       message: `✅ Check Out Berhasil!\n\nWaktu: ${Utilities.formatDate(
@@ -1150,6 +1172,7 @@ function processCheckOut(data) {
         Session.getScriptTimeZone(),
         'HH:mm:ss',
       )}`,
+      holidayMessage: holidayMessage // Kirim pesan libur ke frontend
     };
   } catch (error) {
     Logger.log('Check Out Error: ' + error.message);
@@ -1222,7 +1245,7 @@ function processIzin(data) {
       timestamp,
       nama,
       'Izin',
-      'Izin',
+      'Menunggu Persetujuan', // STATUS AWAL (Pending)
       '-', // No GPS for Izin
       photoUrl,
       keterangan,
@@ -1232,11 +1255,7 @@ function processIzin(data) {
 
     return {
       success: true,
-      message: `✅ Pengajuan Izin Berhasil!\n\nJenis: ${jenisIzin}\nWaktu: ${Utilities.formatDate(
-        timestamp,
-        Session.getScriptTimeZone(),
-        'HH:mm:ss',
-      )}`,
+      message: `✅ Pengajuan Terkirim!\n\nStatus: Menunggu Persetujuan Kepala Sekolah.\nJenis: ${jenisIzin}`,
     };
   } catch (error) {
     Logger.log('Izin Error: ' + error.message);
@@ -1400,6 +1419,172 @@ function getTeacherStats(userName, npsn) {
   }
 }
 
+/**
+ * Update Profile Photo
+ */
+function updateProfilePhoto(npsn, userName, base64Data) {
+  try {
+    const spreadsheetId = SCHOOL_REGISTRY[npsn];
+    const ss = SpreadsheetApp.openById(spreadsheetId);
+    const sheet = ss.getSheetByName('database');
+    const data = sheet.getDataRange().getValues();
+
+    // Find user row
+    let rowIndex = -1;
+    for (let i = 1; i < data.length; i++) {
+      if (data[i][0].toString().trim() === userName) {
+        rowIndex = i + 1;
+        break;
+      }
+    }
+
+    if (rowIndex === -1) return { success: false, message: 'User not found' };
+
+    // Upload photo
+    const filename = `Profile_${userName.replace(/[^a-zA-Z0-9]/g, '')}_${Date.now()}.jpg`;
+    const photoUrl = uploadPhotoToDrive(base64Data, filename, npsn);
+
+    if (!photoUrl) return { success: false, message: 'Upload failed' };
+
+    // Update database (Kolom J = Index 10)
+    if (sheet.getMaxColumns() < 10) sheet.insertColumnAfter(9);
+    sheet.getRange(rowIndex, 10).setValue(photoUrl);
+
+    return { success: true, url: photoUrl };
+  } catch (e) {
+    return { success: false, message: e.message };
+  }
+}
+
+// ============ APPROVAL SYSTEM (NEW) ============
+/**
+ * Admin: Get list of pending permissions
+ */
+function getPendingApprovals(npsn) {
+  try {
+    const spreadsheetId = SCHOOL_REGISTRY[npsn];
+    const ss = SpreadsheetApp.openById(spreadsheetId);
+    const sheet = ss.getSheetByName('data-absensi');
+    const data = sheet.getDataRange().getValues();
+
+    const pendingList = [];
+
+    // Loop data (skip header)
+    for (let i = 1; i < data.length; i++) {
+      const row = data[i];
+      // Cek Status (Kolom D / Index 3) = 'Menunggu Persetujuan'
+      if (row[3] === 'Menunggu Persetujuan') {
+        pendingList.push({
+          rowIndex: i + 1, // 1-based index for editing
+          timestamp: Utilities.formatDate(row[0], Session.getScriptTimeZone(), 'dd/MM HH:mm'),
+          nama: row[1],
+          tipe: row[2],
+          foto: row[5],
+          alasan: row[6]
+        });
+      }
+    }
+
+    return { success: true, list: pendingList };
+  } catch (e) {
+    return { success: false, message: e.message };
+  }
+}
+
+/**
+ * Admin: Process Approval (Approve/Reject)
+ */
+function processApproval(data) {
+  try {
+    const { npsn, rowIndex, action, adminName, reason } = data;
+    const spreadsheetId = SCHOOL_REGISTRY[npsn];
+    const ss = SpreadsheetApp.openById(spreadsheetId);
+    const sheet = ss.getSheetByName('data-absensi');
+
+    // Validasi baris (pastikan masih 'Menunggu Persetujuan' untuk mencegah race condition)
+    const currentStatus = sheet.getRange(rowIndex, 4).getValue();
+    if (currentStatus !== 'Menunggu Persetujuan') {
+      return { success: false, message: 'Data sudah diproses sebelumnya.' };
+    }
+
+    // --- VALIDASI ROLE APPROVAL ---
+    // Ambil nama pemohon dari kolom B (Index 2)
+    const requesterName = sheet.getRange(rowIndex, 2).getValue();
+    const teachers = loadTeachers(ss);
+
+    const requester = teachers.find(t => t.nama === requesterName);
+    const approver = teachers.find(t => t.nama === adminName);
+
+    if (requester && approver) {
+      const reqRole = (requester.jabatan || '').toLowerCase();
+      const appRole = (approver.jabatan || '').toLowerCase();
+
+      // ATURAN: Jika Pemohon adalah Operator, Approver WAJIB Kepala Sekolah
+      if (reqRole.includes('operator') && !appRole.includes('kepala sekolah')) {
+        return { success: false, message: 'Pengajuan izin Operator hanya dapat disetujui oleh Kepala Sekolah.' };
+      }
+    }
+    // ------------------------------
+
+    let newStatus = '';
+
+    if (action === 'APPROVE') {
+      newStatus = 'Izin';
+    } else if (action === 'REJECT') {
+      newStatus = 'Alpha'; // Sesuai request: Jadi Alpha jika ditolak
+
+      // Update Keterangan dengan alasan penolakan
+      const oldKet = sheet.getRange(rowIndex, 7).getValue();
+      const newKet = oldKet + ` [DITOLAK: ${reason}]`;
+      sheet.getRange(rowIndex, 7).setValue(newKet);
+    }
+
+    // Update Status (Kolom D / Index 4)
+    sheet.getRange(rowIndex, 4).setValue(newStatus);
+
+    // Update Admin Info (Kolom H & I)
+    sheet.getRange(rowIndex, 8).setValue('YES'); // Override By Admin
+    sheet.getRange(rowIndex, 9).setValue(adminName); // Admin Name
+
+    return { success: true, message: `Pengajuan berhasil ${action === 'APPROVE' ? 'DISETUJUI' : 'DITOLAK'}` };
+  } catch (e) {
+    return { success: false, message: e.message };
+  }
+}
+
+/**
+ * Guru: Check status update for notification
+ * Dipanggil via polling setiap 30 detik
+ */
+function checkMyLatestStatus(npsn, nama) {
+  try {
+    const spreadsheetId = SCHOOL_REGISTRY[npsn];
+    const ss = SpreadsheetApp.openById(spreadsheetId);
+    const sheet = ss.getSheetByName('data-absensi');
+    const data = sheet.getDataRange().getValues();
+
+    // Cari record terakhir user ini yang Tipe='Izin' hari ini
+    const todayStr = Utilities.formatDate(new Date(), Session.getScriptTimeZone(), 'yyyy-MM-dd');
+
+    // Loop dari bawah (terbaru)
+    for (let i = data.length - 1; i >= 1; i--) {
+      const row = data[i];
+      const rowDate = Utilities.formatDate(row[0], Session.getScriptTimeZone(), 'yyyy-MM-dd');
+
+      if (row[1] === nama && row[2] === 'Izin' && rowDate === todayStr) {
+        return {
+          success: true,
+          status: row[3], // Bisa 'Menunggu Persetujuan', 'Izin', atau 'Alpha'
+          alasan: row[6]
+        };
+      }
+    }
+    return { success: true, status: null };
+  } catch (e) {
+    return { success: false };
+  }
+}
+
 // ==================== MAIN PROCESSING ====================
 /**
  * Unified attendance processing (called from Form.html)
@@ -1438,14 +1623,14 @@ function processAttendance(data) {
 }
 
 /**
- * Check if today is a working day from 'jadwal-kerja' sheet
+ * Helper: Check work day status for specific date
  */
-function checkIfWorkDay(ss) {
+function getWorkDayStatus(ss, dateObj) {
   const sheet = ss.getSheetByName('jadwal-kerja');
   if (!sheet) return { isWorkDay: true, status: 'Kerja', keterangan: '-' }; // Fallback if sheet missing
 
   const data = sheet.getDataRange().getValues();
-  const today = Utilities.formatDate(new Date(), Session.getScriptTimeZone(), "yyyy-MM-dd");
+  const targetDateStr = Utilities.formatDate(dateObj, Session.getScriptTimeZone(), "yyyy-MM-dd");
 
   for (let i = 1; i < data.length; i++) {
     const rowDate = data[i][0];
@@ -1457,7 +1642,7 @@ function checkIfWorkDay(ss) {
       dateStr = String(rowDate);
     }
 
-    if (dateStr === today) {
+    if (dateStr === targetDateStr) {
       const status = data[i][1];
       const keterangan = data[i][2];
       return {
@@ -1469,12 +1654,19 @@ function checkIfWorkDay(ss) {
   }
 
   // Fallback: If date not found in sheet, check if weekend
-  const day = new Date().getDay();
+  const day = dateObj.getDay();
   if (day === 0 || day === 6) { // 0=Sunday, 6=Saturday
-    return { isWorkDay: false, status: 'Libur', keterangan: 'Akhir Pekan (Default)' };
+    return { isWorkDay: false, status: 'Libur', keterangan: day === 0 ? 'Hari Minggu' : 'Hari Sabtu' };
   }
 
   return { isWorkDay: true, status: 'Kerja', keterangan: '-' };
+}
+
+/**
+ * Check if today is a working day
+ */
+function checkIfWorkDay(ss) {
+  return getWorkDayStatus(ss, new Date());
 }
 
 /**

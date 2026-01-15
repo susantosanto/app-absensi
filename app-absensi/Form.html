@@ -14,13 +14,35 @@
     <meta name="theme-color" content="#0f172a">
     <meta name="description" content="Sistem Informasi Kehadiran Digital Guru">
 
-    <!-- DATA URI MANIFEST TO FORCE STANDALONE MODE (NO ADDRESS BAR) -->
-    <link rel="manifest"
-        href='data:application/manifest+json,{"name":"SIKADIR","short_name":"SIKADIR","start_url":".","display":"standalone","background_color":"#0f172a","theme_color":"#0f172a","icons":[{"src":"https://img.icons8.com/color/480/attendance.png","sizes":"480x480","type":"image/png"}]}'>
+    <!-- MODERN PWA ICONS & MANIFEST -->
+    <!-- Menggunakan parameter ?v=2 untuk memaksa browser mengambil icon baru (cache busting) -->
+    <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/12308/12308603.png?v=2">
+    <link rel="icon" type="image/png" href="https://cdn-icons-png.flaticon.com/512/12308/12308603.png?v=2">
 
-    <!-- Apple Touch Icon (Placeholder) -->
-    <link rel="apple-touch-icon" href="https://img.icons8.com/color/480/attendance.png">
-    <link rel="icon" type="image/png" href="https://img.icons8.com/color/480/attendance.png">
+    <!-- DYNAMIC MANIFEST (Fix Address Bar Issue) -->
+    <script>
+        (function () {
+            var link = document.createElement('link');
+            link.rel = 'manifest';
+            var pwaManifest = {
+                "name": "SIKADIR",
+                "short_name": "SIKADIR",
+                "start_url": window.location.href,
+                "display": "standalone",
+                "background_color": "#0f172a",
+                "theme_color": "#0f172a",
+                "orientation": "portrait",
+                "icons": [{
+                    "src": "https://cdn-icons-png.flaticon.com/512/12308/12308603.png",
+                    "sizes": "512x512",
+                    "type": "image/png",
+                    "purpose": "any maskable"
+                }]
+            };
+            link.href = 'data:application/manifest+json,' + encodeURIComponent(JSON.stringify(pwaManifest));
+            document.head.appendChild(link);
+        })();
+    </script>
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
@@ -1130,7 +1152,7 @@
 
         </div>
         <div style="text-align:center; margin-top:24px; font-size:11px; color:rgba(255,255,255,0.5);">
-            &copy; 2026 • Sistem Absensi Digital • Versi 1.0 (BETA)
+            &copy; 2026 • Sistem Absensi Digital • Versi 2.0 (STABLE)
         </div>
     </div>
 
@@ -1163,22 +1185,36 @@
             </div>
 
             <div class="user-select-container">
-                <!-- Dynamic User greeting removed dropdown logic -->
                 <div
                     style="background:rgba(255,255,255,0.15); padding:12px 16px; border-radius:16px; backdrop-filter:blur(5px); border:1px solid rgba(255,255,255,0.2); display:flex; align-items:center; gap:12px;">
-                    <div
-                        style="width:36px; height:36px; background:white; border-radius:50%; display:flex; align-items:center; justify-content:center;">
-                        <i class="fas fa-user-circle" style="color:#0f172a; font-size:20px;"></i>
+
+                    <!-- Avatar with Upload -->
+                    <div onclick="handleChangeProfilePhoto()"
+                        style="position:relative; width:42px; height:42px; cursor:pointer; flex-shrink:0;">
+                        <img id="userProfileImg" src="https://cdn-icons-png.flaticon.com/512/3135/3135715.png"
+                            onerror="this.onerror=null; this.src='https://cdn-icons-png.flaticon.com/512/3135/3135715.png';"
+                            style="width:100%; height:100%; border-radius:50%; object-fit:cover; border:2px solid rgba(255,255,255,0.8); background:white;">
+                        <div
+                            style="position:absolute; bottom:-2px; right:-2px; width:16px; height:16px; background:#3b82f6; border-radius:50%; border:1px solid white; display:flex; align-items:center; justify-content:center; box-shadow:0 2px 4px rgba(0,0,0,0.2);">
+                            <i class="fas fa-camera" style="font-size:8px; color:white;"></i>
+                        </div>
                     </div>
-                    <div>
-                        <div style="font-size:10px; opacity:0.8;">Login sebagai:</div>
-                        <div id="userDisplayName" style="font-size:14px; font-weight:600;">...</div>
+                    <input type="file" id="profilePhotoInput" accept="image/*" style="display:none;"
+                        onchange="handleProfilePhotoSelect(this)">
+
+                    <div style="flex:1; min-width:0;">
+                        <div id="userDisplayName"
+                            style="font-size:14px; font-weight:700; color:white; line-height:1.2; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">
+                            ...</div>
+                        <div id="userJabatan"
+                            style="font-size:11px; color:rgba(255,255,255,0.9); font-weight:500; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">
+                            ...</div>
                     </div>
+
                     <!-- Logout Button -->
                     <button onclick="handleLogout()" title="Keluar dari Aplikasi SIKADIR"
-                        style="margin-left:auto; background:rgba(255,255,255,0.2); border:none; padding:8px 14px; border-radius:12px; color:white; cursor:pointer; display:flex; align-items:center; gap:8px; transition:all 0.3s; border:1px solid rgba(255,255,255,0.15); box-shadow:0 4px 12px rgba(0,0,0,0.1);">
-                        <span style="font-size:10px; font-weight:700; letter-spacing:0.8px;">KELUAR</span>
-                        <i class="fas fa-power-off" style="font-size:11px;"></i>
+                        style="margin-left:auto; background:rgba(255,255,255,0.2); border:none; padding:8px 12px; border-radius:10px; color:white; cursor:pointer; display:flex; align-items:center; gap:6px; transition:all 0.3s; border:1px solid rgba(255,255,255,0.15);">
+                        <i class="fas fa-power-off" style="font-size:12px;"></i>
                     </button>
                 </div>
             </div>
@@ -1298,6 +1334,45 @@
                         z-index: 1;
                     "></div>
                 </button>
+
+                <!-- NEW: APPROVAL BUTTON (Khusus Admin) -->
+                <button onclick="showApprovalMenu()" style="
+                    width: 100%;
+                    margin-top: 12px;
+                    background: white;
+                    color: #1e293b;
+                    border: 1px solid #e2e8f0;
+                    border-radius: var(--radius-xl);
+                    padding: 16px 20px;
+                    display: flex;
+                    align-items: center;
+                    justify-content: space-between;
+                    box-shadow: 0 4px 15px rgba(0,0,0,0.03);
+                    cursor: pointer;
+                    position: relative;
+                ">
+                    <div style="display: flex; align-items: center; gap: 16px;">
+                        <div style="
+                            width: 50px; height: 50px; 
+                            background: #fff7ed; 
+                            border-radius: 14px; 
+                            display: flex; align-items: center; justify-content: center;
+                            color: #f97316;
+                        ">
+                            <i class="fas fa-clipboard-check" style="font-size: 24px;"></i>
+                        </div>
+                        <div style="text-align: left;">
+                            <div style="font-size: 15px; font-weight: 700; margin-bottom: 4px; color: #334155;">
+                                Persetujuan Izin</div>
+                            <div style="font-size: 11px; color: #94a3b8; font-weight: 500;">
+                                Validasi pengajuan guru</div>
+                        </div>
+                    </div>
+                    <div id="approvalBadge"
+                        style="display:none; background:#ef4444; color:white; font-size:10px; font-weight:bold; padding:2px 8px; border-radius:10px; position:absolute; top:15px; right:15px;">
+                        0</div>
+                    <i class="fas fa-chevron-right" style="color: #cbd5e1;"></i>
+                </button>
             </div>
 
             <!-- SETTINGS MENU (Visible to All) -->
@@ -1370,7 +1445,7 @@
                 </div>
                 <!-- <div class="nav-footer-tagline" style="margin-bottom:4px;">Build with passion for Education Technology.</div> -->
                 <div class="nav-footer-copyright">
-                    Copyright © 2025 • All Rights Reserved • Versi 1.0 (BETA)
+                    Copyright © 2026 • All Rights Reserved • Versi 2.0 (STABLE)
                 </div>
             </div>
         </div>
@@ -1393,6 +1468,7 @@
         let userMarker = null;
         let userSession = null; // Store logged in user data as object {nama, email, jabatan, ...}
         let latestAttendanceStatus = null; // Store status for countdown logic
+        let lastKnownStatus = null; // Untuk tracking perubahan status notifikasi
 
         // FUNGSI UNIK ID PERANGKAT
         function getDeviceId() {
@@ -1769,6 +1845,12 @@
                             console.log('🎨 Calling updateAppWithData...');
                             updateAppWithData();
                             document.getElementById('btnIzin').disabled = false;
+
+                            // START POLLING NOTIFICATION
+                            startNotificationPolling();
+
+                            // SHOW NEW VERSION INTRO (One-shot)
+                            showNewVersionIntro();
                         } catch (e) {
                             console.error("🔥 Render Error:", e);
                             document.getElementById('pageLoader').style.display = 'none';
@@ -1900,6 +1982,7 @@
                     console.log('🚪 Logging out...');
                     localStorage.removeItem('absensi_session');
                     userSession = null;
+                    lastKnownStatus = null; // Reset status tracker
 
                     // Reset UI
                     document.getElementById('mainApp').style.display = 'none';
@@ -1931,6 +2014,69 @@
             });
         }
 
+        // ============ NEW FEATURE INTRO (V2.0) ============
+        function showNewVersionIntro() {
+            const versionKey = 'sikadir_intro_v2.0_shown';
+            // Cek apakah sudah pernah ditampilkan di device ini
+            if (!localStorage.getItem(versionKey)) {
+                Swal.fire({
+                    title: '',
+                    html: `
+                        <div style="text-align:left;">
+                            <div style="text-align:center; margin-bottom:20px;">
+                                <div style="width:80px; height:80px; background:linear-gradient(135deg, #10b981 0%, #059669 100%); border-radius:20px; display:inline-flex; align-items:center; justify-content:center; box-shadow:0 10px 20px rgba(16, 185, 129, 0.3); margin-bottom:15px;">
+                                    <i class="fas fa-rocket" style="font-size:40px; color:white;"></i>
+                                </div>
+                                <h2 style="font-size:22px; font-weight:800; color:#1e293b; margin:0;">Update Baru!</h2>
+                                <div style="font-size:14px; font-weight:600; color:#10b981;">SIKADIR Versi 2.0</div>
+                            </div>
+
+                            <div style="background:#f8fafc; border-radius:16px; padding:16px; border:1px solid #e2e8f0; margin-bottom:10px;">
+                                <div style="display:flex; gap:12px; margin-bottom:12px;">
+                                    <div style="width:32px; height:32px; background:#eff6ff; border-radius:8px; display:flex; align-items:center; justify-content:center; color:#3b82f6; flex-shrink:0;"><i class="fas fa-clipboard-check"></i></div>
+                                    <div>
+                                        <div style="font-size:13px; font-weight:700; color:#1e293b;">Sistem Approval Izin</div>
+                                        <div style="font-size:11px; color:#64748b; line-height:1.4;">Pengajuan izin kini <strong>Menunggu Persetujuan</strong> Kepala Sekolah. Status tidak langsung "Izin".</div>
+                                    </div>
+                                </div>
+                                <div style="display:flex; gap:12px; margin-bottom:12px;">
+                                    <div style="width:32px; height:32px; background:#fff7ed; border-radius:8px; display:flex; align-items:center; justify-content:center; color:#f97316; flex-shrink:0;"><i class="fas fa-bell"></i></div>
+                                    <div>
+                                        <div style="font-size:13px; font-weight:700; color:#1e293b;">Notifikasi Realtime</div>
+                                        <div style="font-size:11px; color:#64748b; line-height:1.4;">Guru akan menerima notifikasi langsung di layar saat izin disetujui atau ditolak.</div>
+                                    </div>
+                                </div>
+                                <div style="display:flex; gap:12px;">
+                                    <div style="width:32px; height:32px; background:#f0fdf4; border-radius:8px; display:flex; align-items:center; justify-content:center; color:#10b981; flex-shrink:0;"><i class="fas fa-tachometer-alt"></i></div>
+                                    <div>
+                                        <div style="font-size:13px; font-weight:700; color:#1e293b;">Performa Lebih Cepat</div>
+                                        <div style="font-size:11px; color:#64748b; line-height:1.4;">Optimasi sistem GPS dan loading data yang lebih stabil.</div>
+                                    </div>
+                                </div>
+                                <div style="display:flex; gap:12px; margin-top:12px;">
+                                    <div style="width:32px; height:32px; background:#f3e8ff; border-radius:8px; display:flex; align-items:center; justify-content:center; color:#7e22ce; flex-shrink:0;"><i class="fas fa-user-edit"></i></div>
+                                    <div>
+                                        <div style="font-size:13px; font-weight:700; color:#1e293b;">Foto Profil Kustom</div>
+                                        <div style="font-size:11px; color:#64748b; line-height:1.4;">Upload foto profil Anda agar tampilan lebih personal dan profesional.</div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div style="font-size:11px; color:#94a3b8; text-align:center; font-style:italic;">
+                                Tekan tombol di bawah untuk mulai menggunakan versi terbaru.
+                            </div>
+                        </div>
+                    `,
+                    confirmButtonText: 'Mulai Sekarang 🚀',
+                    confirmButtonColor: '#0f172a',
+                    customClass: { popup: 'rounded-xl' },
+                    allowOutsideClick: false
+                }).then(() => {
+                    localStorage.setItem(versionKey, 'true'); // Tandai sudah dilihat
+                });
+            }
+        }
+
         function updateAppWithData() {
             // STOP LOADER
             document.getElementById('pageLoader').style.display = 'none';
@@ -1944,6 +2090,15 @@
             document.getElementById('schoolNpsn').innerText = (appData.config.npsn || npsn) + ' -';
             document.getElementById('schoolName').innerText = appData.config.schoolName;
             document.getElementById('userDisplayName').innerText = userSession.nama;
+            document.getElementById('userJabatan').innerText = userSession.jabatan || 'Guru / Staff';
+
+            if (userSession.fotoProfil && userSession.fotoProfil !== '') {
+                const profileImg = document.getElementById('userProfileImg');
+                // Add a cache-busting parameter to prevent the browser from showing a stale/broken image
+                profileImg.src = userSession.fotoProfil + '&t=' + new Date().getTime();
+            } else {
+                document.getElementById('userProfileImg').src = 'https://cdn-icons-png.flaticon.com/512/3135/3135715.png';
+            }
 
             if (appData.config.logo) {
                 updateLogos(appData.config.logo);
@@ -2324,6 +2479,49 @@
             const a = Math.sin(Δφ / 2) * Math.sin(Δφ / 2) + Math.cos(φ1) * Math.cos(φ2) * Math.sin(Δλ / 2) * Math.sin(Δλ / 2);
             const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
             return R * c;
+        }
+
+        // ============ PROFILE PHOTO HANDLER ============
+        function handleChangeProfilePhoto() {
+            document.getElementById('profilePhotoInput').click();
+        }
+
+        async function handleProfilePhotoSelect(input) {
+            if (input.files && input.files[0]) {
+                const file = input.files[0];
+
+                // Compress
+                const compressed = await compressImage(file);
+
+                // Show loading state
+                const imgEl = document.getElementById('userProfileImg');
+                const originalSrc = imgEl.src;
+                imgEl.style.opacity = '0.5';
+
+                showModernLoading('Mengupload Foto', 'Sedang memperbarui foto profil...');
+
+                google.script.run.withSuccessHandler(res => {
+                    Swal.close();
+                    imgEl.style.opacity = '1';
+
+                    if (res.success) {
+                        const newUrl = res.url;
+                        // Set with cache buster to force a fresh load
+                        imgEl.src = newUrl + '&t=' + new Date().getTime();
+                        // Update Session
+                        userSession.fotoProfil = newUrl; // Save the clean URL
+                        localStorage.setItem('absensi_session', JSON.stringify(userSession));
+
+                        showElegantAlert({ type: 'success', title: 'Berhasil', message: 'Foto profil berhasil diperbarui!' });
+                    } else {
+                        imgEl.src = originalSrc;
+                        showElegantAlert({ type: 'error', title: 'Gagal', message: res.message });
+                    }
+                }).updateProfilePhoto(npsn, userSession.nama, compressed);
+
+                // Reset input
+                input.value = '';
+            }
         }
 
         // ============ INTERACTIVE UI EFFECTS ============
@@ -2722,6 +2920,20 @@
                     const timeStr = timeMatch ? timeMatch[1] : '-';
                     const quote = "Terima kasih atas dedikasi Anda hari ini. Selamat beristirahat & hati-hati di jalan!";
 
+                    // CEK HOLIDAY MESSAGE DARI SERVER
+                    let holidayHtml = '';
+                    if (res.holidayMessage) {
+                        holidayHtml = `
+                            <div style="margin-top: 16px; background: linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%); border: 1px solid #a7f3d0; border-radius: 12px; padding: 12px; display: flex; align-items: center; gap: 10px; text-align: left;">
+                                <div style="font-size: 24px;">🎉</div>
+                                <div>
+                                    <div style="font-size: 12px; font-weight: 700; color: #065f46;">Besok Libur!</div>
+                                    <div style="font-size: 11px; color: #047857; line-height: 1.3;">${res.holidayMessage.replace('Besok adalah hari libur ', '')}</div>
+                                </div>
+                            </div>
+                        `;
+                    }
+
                     const summaryHtml = `
                         <div style="text-align:center;">
                             <div style="font-size: 14px; color: #64748b; line-height: 1.5; margin-bottom: 8px;">
@@ -2730,6 +2942,7 @@
                             <div style="font-size: 32px; font-weight: 800; color: #1e293b; margin-bottom: 16px; font-variant-numeric: tabular-nums;">
                                 ${timeStr}
                             </div>
+                            ${holidayHtml}
                             <div style="font-style:italic; color:#64748b; font-size:13px; margin-top: 24px; border-top: 1px solid #f1f5f9; padding-top: 20px;">
                                 "${quote}"
                             </div>
@@ -2993,10 +3206,172 @@
                 });
                 // REFRESH CARD STATUS SECARA OTOMATIS
                 if (res.success) {
+                    lastKnownStatus = 'Menunggu Persetujuan'; // Set status awal agar tracking akurat
                     loadTeacherStats(userSession.nama);
                 }
             }).processAttendance({ tipe: 'Izin', nama, pin, jenisIzin: formData.jenisIzin, alasan: formData.keterangan, npsn });
         }
+
+        // ============ NOTIFICATION & APPROVAL SYSTEM ============
+
+        // FUNGSI UPDATE BADGE (Dipisah agar bisa dipanggil manual)
+        function checkPendingBadge() {
+            if (!userSession || !userSession.jabatan) return;
+            const role = userSession.jabatan || '';
+            if (/kepala sekolah|operator/i.test(role)) {
+                google.script.run.withSuccessHandler(res => {
+                    if (res.success) {
+                        const count = res.list.length;
+                        const badge = document.getElementById('approvalBadge');
+                        if (badge) {
+                            if (count > 0) {
+                                badge.style.display = 'block';
+                                badge.innerText = count + ' Pending';
+                            } else {
+                                badge.style.display = 'none';
+                            }
+                        }
+                    }
+                }).getPendingApprovals(npsn);
+            }
+        }
+
+        // 1. POLLING NOTIFIKASI (Untuk Guru & Admin Badge)
+        function startNotificationPolling() {
+            // Cek awal langsung
+            checkPendingBadge();
+
+            // Cek setiap 10 detik (Dipercepat dari 30s agar lebih realtime)
+            setInterval(() => {
+                if (!userSession || !userSession.nama) return;
+
+                // A. LOGIC GURU: Cek Status Izin Sendiri
+                google.script.run.withSuccessHandler(res => {
+                    if (res.success && res.status) {
+                        // Logic: Jika status berubah dari 'Menunggu' menjadi 'Izin' atau 'Alpha'
+                        if (lastKnownStatus && lastKnownStatus !== res.status) {
+                            if (res.status === 'Izin') {
+                                showElegantAlert({
+                                    type: 'success',
+                                    title: 'Pengajuan Disetujui',
+                                    message: `Pengajuan izin Anda (${res.alasan}) telah <strong>DISETUJUI</strong> oleh Kepala Sekolah.`
+                                });
+                                loadTeacherStats(userSession.nama); // Refresh UI
+                            } else if (res.status === 'Alpha') {
+                                showElegantAlert({
+                                    type: 'error',
+                                    title: 'Pengajuan Ditolak',
+                                    message: `Maaf, pengajuan izin Anda <strong>DITOLAK</strong> dan tercatat sebagai <strong>ALPHA</strong>.<br><br>Ket: ${res.alasan}`
+                                });
+                                loadTeacherStats(userSession.nama); // Refresh UI
+                            }
+                        }
+                        lastKnownStatus = res.status;
+                    }
+                }).checkMyLatestStatus(npsn, userSession.nama);
+
+                // B. LOGIC ADMIN: Cek Jumlah Pending Approval (Update Badge)
+                checkPendingBadge();
+
+            }, 10000); // 10 Detik
+        }
+
+        // 2. MENU APPROVAL (Untuk Admin)
+        function showApprovalMenu() {
+            showModernLoading('Memuat Data', 'Mengambil daftar pengajuan...');
+
+            google.script.run.withSuccessHandler(res => {
+                Swal.close(); // Close loader
+
+                if (!res.success) {
+                    showElegantAlert({ type: 'error', title: 'Error', message: res.message });
+                    return;
+                }
+
+                const list = res.list;
+                if (list.length === 0) {
+                    showElegantAlert({ type: 'info', title: 'Tidak Ada Pengajuan', message: 'Saat ini tidak ada pengajuan izin yang perlu diproses.' });
+                    return;
+                }
+
+                // Build HTML List
+                let htmlList = '<div style="text-align:left; max-height:60vh; overflow-y:auto;">';
+
+                list.forEach(item => {
+                    htmlList += `
+                        <div style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:12px; padding:12px; margin-bottom:10px;">
+                            <div style="display:flex; justify-content:space-between; margin-bottom:6px;">
+                                <span style="font-size:12px; font-weight:700; color:#1e293b;">${item.nama}</span>
+                                <span style="font-size:10px; color:#64748b;">${item.timestamp}</span>
+                            </div>
+                            <div style="font-size:11px; color:#334155; margin-bottom:8px; background:white; padding:8px; border-radius:8px; border:1px dashed #cbd5e1;">
+                                <strong>${item.tipe}</strong>: ${item.alasan}
+                            </div>
+                            ${item.foto && item.foto !== '-' ? `<a href="${item.foto}" target="_blank" style="font-size:10px; color:#3b82f6; display:block; margin-bottom:8px;"><i class="fas fa-image"></i> Lihat Bukti Foto</a>` : ''}
+                            
+                            <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px;">
+                                <button onclick="processApprovalAction(${item.rowIndex}, 'REJECT')" style="padding:8px; background:#fee2e2; color:#b91c1c; border:none; border-radius:8px; font-size:11px; font-weight:700; cursor:pointer;">TOLAK</button>
+                                <button onclick="processApprovalAction(${item.rowIndex}, 'APPROVE')" style="padding:8px; background:#dcfce7; color:#15803d; border:none; border-radius:8px; font-size:11px; font-weight:700; cursor:pointer;">SETUJUI</button>
+                            </div>
+                        </div>
+                    `;
+                });
+                htmlList += '</div>';
+
+                Swal.fire({
+                    title: 'Daftar Persetujuan',
+                    html: htmlList,
+                    showConfirmButton: false,
+                    showCloseButton: true,
+                    customClass: { popup: 'rounded-xl' }
+                });
+
+            }).getPendingApprovals(npsn);
+        }
+
+        // 3. PROSES AKSI APPROVAL
+        window.processApprovalAction = async function (rowIndex, action) {
+            let reason = '';
+
+            if (action === 'REJECT') {
+                const { value: text } = await Swal.fire({
+                    title: 'Tolak Izin?',
+                    input: 'text',
+                    inputLabel: 'Alasan Penolakan',
+                    inputPlaceholder: 'Contoh: Bukti kurang jelas / Acara tidak urgent',
+                    showCancelButton: true,
+                    confirmButtonText: 'Tolak & Tandai Alpha',
+                    confirmButtonColor: '#ef4444',
+                    inputValidator: (value) => {
+                        if (!value) {
+                            return 'Anda harus menuliskan alasan penolakan!';
+                        }
+                    }
+                });
+                if (!text) return; // Cancelled
+                reason = text;
+            }
+
+            showModernLoading('Memproses...', 'Sedang mengupdate data...');
+
+            google.script.run.withSuccessHandler(res => {
+                if (res.success) {
+                    showElegantAlert({ type: 'success', title: 'Berhasil', message: res.message });
+                    // Refresh list (close current swal first)
+                    setTimeout(() => showApprovalMenu(), 1000);
+                    // UPDATE BADGE LANGSUNG (Realtime)
+                    checkPendingBadge();
+                } else {
+                    showElegantAlert({ type: 'error', title: 'Gagal', message: res.message });
+                }
+            }).processApproval({
+                npsn: npsn,
+                rowIndex: rowIndex,
+                action: action,
+                adminName: userSession.nama,
+                reason: reason
+            });
+        };
 
         // ============ SETTINGS & PROFILE MANAGEMENT ============
         async function showSettingsMenu() {
@@ -3007,6 +3382,7 @@
                         <div style="width:70px; height:70px; background:#f1f5f9; border-radius:50%; display:flex; align-items:center; justify-content:center; box-shadow:0 10px 15px -3px rgba(15, 23, 42, 0.1);">
                             <i class="fas fa-user-cog" style="font-size:32px; color:#1e293b;"></i>
                         </div>
+
                         <h3 style="margin:0; font-size:18px; font-weight:700; color:#1e293b;">Akun & Pengaturan</h3>
                         <div style="width:100%; display:flex; flex-direction:column; gap:10px; margin-top:10px;">
                             <button onclick="showProfileMenu()" style="width:100%; display:flex; align-items:center; gap:12px; padding:16px; background:#fff; border:1px solid #e2e8f0; border-radius:14px; cursor:pointer; text-align:left; transition:0.2s;">
@@ -3232,7 +3608,7 @@
                             </div>
                             
                             <div style="text-align:center; padding:10px; opacity:0.7;">
-                                <div style="font-size:11px; font-weight:800; color:#1e293b;">SIKADIR v.1.0 (BETA)</div>
+                                <div style="font-size:11px; font-weight:800; color:#1e293b;">SIKADIR v.2.0 (STABLE)</div>
                                 <div style="font-size:9px; color:#64748b; margin-top:2px;">Official Release Candidate • 2026</div>
                             </div>
                         </div>

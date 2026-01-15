@@ -227,21 +227,22 @@ function setupDatabase() {
     var sheetConfig = ss.getSheetByName("config");
     if (!sheetConfig) {
         sheetConfig = ss.insertSheet("config");
-        sheetConfig.appendRow(["KEY", "VALUE (JANGAN UBAH POSISI INI)"]);
+        sheetConfig.appendRow(["PARAMETER", "VALUE (UBAH DI SINI)"]);
         sheetConfig.appendRow(["LATITUDE_SEKOLAH", "-6.873215"]); // Contoh Bandung
         sheetConfig.appendRow(["LONGITUDE_SEKOLAH", "107.587898"]);
         sheetConfig.appendRow(["RADIUS_METER", "100"]);
         sheetConfig.appendRow(["JAM_MASUK", "07:00"]);
         sheetConfig.appendRow(["JAM_BATAS_IZIN", "09:00"]);
-        sheetConfig.appendRow(["JAM_PULANG", "14:00"]); // NEW: Jam minimal check out
-        // sheetConfig.appendRow(["ADMIN_PIN", "999999"]); // NEW: PIN untuk admin override
+        sheetConfig.appendRow(["JAM_PULANG", "14:00"]);
         sheetConfig.appendRow(["NAMA_SEKOLAH", "SDN CONTOH"]); // Baris 8: Nama Sekolah
-        sheetConfig.appendRow(["JAM_PULANG_JUMAT", "10:45"]); // Baris 9: Khusus Jumat
+        sheetConfig.appendRow(["JAM_PULANG_JUMAT", "11:00"]); // Baris 9: Khusus Jumat
         sheetConfig.appendRow(["INFO_PENGUMUMAN", "Isi pengumuman di sini..."]); // Baris 10: Pesan Broadcast
         sheetConfig.appendRow(["STATUS_PENGUMUMAN", "OFF"]); // Baris 11: ON/OFF
 
         // Style
         sheetConfig.getRange("A1:B1").setFontWeight("bold").setBackground("#cbd5e1");
+        sheetConfig.getRange("A2:A11").setFontWeight("bold");
+        sheetConfig.getRange("B2:B11").setFontItalic(true);
         sheetConfig.setColumnWidth(1, 180);
         sheetConfig.setColumnWidth(2, 150);
     }
@@ -251,20 +252,21 @@ function setupDatabase() {
     if (!sheetDB) {
         sheetDB = ss.insertSheet("database");
         // Update Headers: Tambahkan Kolom G (Kosong/PIN) dan Kolom I (DeviceID)
-        sheetDB.appendRow(["Nama Lengkap", "NIP", "Jabatan", "Unit Kerja", "Email", "Password", "PIN", "LastCheckInDate", "DeviceID"]);
+        sheetDB.appendRow(["Nama Lengkap", "NIP", "Jabatan", "Unit Kerja", "Email", "Password", "PIN", "LastCheckInDate", "DeviceID", "fotoProfil"]);
 
         // Data Dummy (NIP sebagai identifier utama login)
-        sheetDB.appendRow(["Guru Demo 1", "198001012010011001", "Guru Kelas", "Kelas 1A", "guru1@sekolah.id", "1234", "123456", "", ""]);
-        sheetDB.appendRow(["Guru Demo 2", "198505052015012002", "Waka Kurikulum", "Kelas 2B", "guru2@sekolah.id", "1234", "123456", "", ""]);
-        sheetDB.appendRow(["Admin Demo", "00000000", "Kepala Sekolah", "SDN Pasirhalang", "admin@sekolah.id", "1234", "123456", "", ""]);
+        sheetDB.appendRow(["Guru Demo 1", "198001012010011001", "Guru Kelas", "Kelas 1A", "guru1@sekolah.id", "1234", "123456", "", "", ""]);
+        sheetDB.appendRow(["Guru Demo 2", "198505052015012002", "Waka Kurikulum", "Kelas 2B", "guru2@sekolah.id", "1234", "123456", "", "", ""]);
+        sheetDB.appendRow(["Admin Demo", "00000000", "Kepala Sekolah", "SDN Pasirhalang", "admin@sekolah.id", "1234", "123456", "", "", ""]);
 
-        sheetDB.getRange("A1:I1").setFontWeight("bold").setBackground("#bbf7d0");
+        sheetDB.getRange("A1:J1").setFontWeight("bold").setBackground("#bbf7d0");
         sheetDB.setColumnWidth(1, 180);
         sheetDB.setColumnWidth(2, 200); // NIP
         sheetDB.setColumnWidth(3, 150);
         sheetDB.setColumnWidth(4, 150);
         sheetDB.setColumnWidth(5, 200); // Email
         sheetDB.setColumnWidth(9, 250); // DeviceID
+        sheetDB.setColumnWidth(10, 250); // fotoProfil
     }
 
     // 3. Setup Sheet 'data-absensi'
