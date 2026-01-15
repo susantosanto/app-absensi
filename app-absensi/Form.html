@@ -82,14 +82,62 @@
 
         /* HEADER SECTION - MELENGKUNG */
         .header-bg {
-            background: var(--primary-gradient);
-            padding: 24px 20px 80px 20px;
-            /* Extra padding bottom for overlap */
-            border-bottom-left-radius: 40px;
-            border-bottom-right-radius: 40px;
+            padding: 24px 20px 170px 20px;
+            /* Deeper padding to reach attendance cards */
             color: white;
             position: relative;
             z-index: 1;
+        }
+
+        /* Separate Surface for Performance */
+        .header-surface {
+            position: absolute;
+            top: -200px;
+            /* Pre-extended upwards to prevent white gaps */
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: var(--primary-gradient);
+            border-bottom-left-radius: 40px;
+            border-bottom-right-radius: 40px;
+            z-index: -2;
+            will-change: transform;
+            pointer-events: none;
+        }
+
+        .decor-blob {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(60px);
+            z-index: -1;
+            pointer-events: none;
+            opacity: 0.4;
+            will-change: transform;
+        }
+
+        .blob-1 {
+            width: 150px;
+            height: 150px;
+            background: #10b981;
+            top: -30px;
+            right: -40px;
+        }
+
+        .blob-2 {
+            width: 120px;
+            height: 120px;
+            background: #3b82f6;
+            bottom: -20px;
+            left: -30px;
+        }
+
+        .blob-3 {
+            width: 80px;
+            height: 80px;
+            background: #fbbf24;
+            top: 40%;
+            left: 20%;
+            opacity: 0.2;
         }
 
         .btn-settings {
@@ -290,7 +338,8 @@
         /* Spacer for main content to avoid footer overlap */
         .main-content {
             padding: 0 20px;
-            margin-top: -50px;
+            margin-top: -130px;
+            /* Raised higher to center blue BG on cards */
             position: relative;
             z-index: 2;
             margin-bottom: 20px;
@@ -637,20 +686,40 @@
             }
         }
 
-        /* --- HIGH PERFORMANCE ANIMATION --- */
-        /* Menggunakan Class + Transition lebih ringan daripada Keyframes kompleks untuk banyak elemen */
+        /* --- PROGRESSIVE DISCLOSURE WITH MOTION --- */
+        .header-bg,
+        .user-select-container,
+        .card,
+        .reveal-element {
+            -webkit-backface-visibility: hidden;
+            backface-visibility: hidden;
+            transform-style: preserve-3d;
+            will-change: transform, opacity;
+        }
+
+        .header-bg {
+            border-bottom-left-radius: 40px;
+            border-bottom-right-radius: 40px;
+        }
+
         .reveal-element {
             opacity: 0;
-            transform: translateY(30px);
-            /* Jarak geser sedikit diperjauh untuk efek dramatis tapi tetap smooth */
-            transition: opacity 0.6s cubic-bezier(0.2, 0.8, 0.2, 1), transform 0.6s cubic-bezier(0.2, 0.8, 0.2, 1);
-            will-change: opacity, transform;
-            /* Optimasi GPU untuk HP Low-end */
+            transform: translate3d(0, 60px, 0) scale(0.85);
+            transition: opacity 1s cubic-bezier(0.16, 1, 0.3, 1),
+                transform 1s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .reveal-left {
+            transform: translate3d(-50px, 40px, 0) scale(0.8);
+        }
+
+        .reveal-right {
+            transform: translate3d(50px, 40px, 0) scale(0.8);
         }
 
         .reveal-element.visible {
             opacity: 1;
-            transform: translateY(0);
+            transform: translate3d(0, 0, 0) scale(1) !important;
         }
 
         /* STATS STATISTIK */
@@ -1159,6 +1228,7 @@
 
         <!-- HEADER MELENGKUNG -->
         <div class="header-bg">
+            <div class="header-surface"></div>
             <div class="top-bar">
                 <div class="logo-placeholder skeleton" id="dashLogoContainer">
                     <i id="dashLogoIcon" class="fas fa-shield-alt" style="color:#cbd5e1;"></i>
@@ -1181,40 +1251,39 @@
                 </div>
                 <div class="accent-line"></div>
             </div>
+        </div>
 
-            <div class="user-select-container">
-                <div
-                    style="background:rgba(255,255,255,0.15); padding:12px 16px; border-radius:16px; backdrop-filter:blur(5px); border:1px solid rgba(255,255,255,0.2); display:flex; align-items:center; gap:12px;">
-
-                    <!-- Avatar Display Only -->
-                    <div style="position:relative; width:42px; height:42px; flex-shrink:0;">
+        <!-- CONTENT OVERLAY -->
+        <div class="main-content">
+            <!-- Profile Card (Moved into scroll flow but with Ultra-Glass style) -->
+            <div class="user-select-container"
+                style="background: rgba(255, 255, 255, 0.15); backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px); border-radius: 20px; padding: 14px 18px; border: 1px solid rgba(255, 255, 255, 0.25); box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.1); display: flex; align-items: center; gap: 12px; margin-bottom: 20px; position: relative; z-index: 10;">
+                <div style="display:flex; align-items:center; gap:12px; width: 100%;">
+                    <!-- Avatar Display -->
+                    <div style="position:relative; width:48px; height:48px; flex-shrink:0;">
                         <img id="userProfileImg" src="https://cdn-icons-png.flaticon.com/512/3135/3135715.png"
                             onerror="this.onerror=null; this.src='https://cdn-icons-png.flaticon.com/512/3135/3135715.png';"
-                            style="width:100%; height:100%; border-radius:50%; object-fit:cover; border:2px solid rgba(255,255,255,0.8); background:white;">
+                            style="width:100%; height:100%; border-radius:50%; object-fit:cover; border:2px solid rgba(255, 255, 255, 0.6); box-shadow: 0 4px 12px rgba(0,0,0,0.15); background: rgba(255,255,255,0.2);">
                     </div>
                     <input type="file" id="profilePhotoInput" accept="image/*" style="display:none;"
                         onchange="handleProfilePhotoSelect(this)">
 
                     <div style="flex:1; min-width:0;">
                         <div id="userDisplayName"
-                            style="font-size:14px; font-weight:700; color:white; line-height:1.2; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">
+                            style="font-size:15px; font-weight:700; color:#ffffff; line-height:1.2; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; text-shadow: 0 1px 2px rgba(0,0,0,0.1);">
                             ...</div>
                         <div id="userJabatan"
-                            style="font-size:11px; color:rgba(255,255,255,0.9); font-weight:500; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">
+                            style="font-size:11px; color:rgba(255,255,255,0.85); font-weight:500; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">
                             ...</div>
                     </div>
 
                     <!-- Logout Button -->
                     <button onclick="handleLogout()" title="Keluar dari Aplikasi SIKADIR"
-                        style="margin-left:auto; background:rgba(255,255,255,0.2); border:none; padding:8px 12px; border-radius:10px; color:white; cursor:pointer; display:flex; align-items:center; gap:6px; transition:all 0.3s; border:1px solid rgba(255,255,255,0.15);">
-                        <i class="fas fa-power-off" style="font-size:12px;"></i>
+                        style="margin-left:auto; background:rgba(255,255,255,0.1); border:1px solid rgba(255,255,255,0.2); width:40px; height:40px; border-radius:12px; color:white; cursor:pointer; display:flex; align-items:center; justify-content:center; transition:all 0.3s;">
+                        <i class="fas fa-power-off" style="font-size:15px;"></i>
                     </button>
                 </div>
             </div>
-        </div>
-
-        <!-- CONTENT OVERLAY -->
-        <div class="main-content">
 
             <!-- CARD UTAMA: JAM & AKSI -->
             <div class="card">
@@ -1427,8 +1496,7 @@
         </div>
 
         <!-- BOTTOM NAV WITH INTEGRATED FOOTER -->
-        <div class="bottom-nav"
-            style="position:static; box-shadow:none; border:none; background:transparent;">
+        <div class="bottom-nav" style="position:static; box-shadow:none; border:none; background:transparent;">
             <!-- Nav buttons removed as requested, keeping footer only -->
             <div class="nav-footer">
                 <div class="nav-footer-main">
@@ -2082,7 +2150,19 @@
             // --- 1. POPULATE DATA (TANPA ANIMASI DULU) ---
             document.getElementById('schoolNpsn').innerText = (appData.config.npsn || npsn) + ' -';
             document.getElementById('schoolName').innerText = appData.config.schoolName;
-            document.getElementById('userDisplayName').innerText = userSession.nama;
+
+            // Dynamic Name Scaling
+            const nameEl = document.getElementById('userDisplayName');
+            const userName = userSession.nama;
+            nameEl.innerText = userName;
+            if (userName.length > 25) {
+                nameEl.style.fontSize = '12px';
+            } else if (userName.length > 20) {
+                nameEl.style.fontSize = '13px';
+            } else {
+                nameEl.style.fontSize = '15px';
+            }
+
             document.getElementById('userJabatan').innerText = userSession.jabatan || 'Guru / Staff';
 
             if (userSession.fotoProfil && userSession.fotoProfil !== '') {
@@ -2112,44 +2192,42 @@
                 document.getElementById('adminMenuContainer').style.display = 'none';
             }
 
-            // --- 2. PREPARE ANIMATION (High Quality & Low RAM Usage) ---
-            // Kita pilih elemen-elemen utama dashboard
-            // const heroHeader = document.querySelector('.header-bg'); // Header statis (tidak di-animasi)
-            const mainContentChildren = Array.from(document.querySelectorAll('.main-content > div'));
+            // --- 2. PREPARE ANIMATION (Scroll Reveal & Logic) ---
+            const mainContentChildren = Array.from(document.querySelectorAll('.main-content > div, .main-content > .card, .map-section, .status-info-card, .user-select-container'));
             const footerNav = document.querySelector('.bottom-nav');
-
-            // Gabungkan semua elemen yang mau di-animasi dalam urutan yang benar
             const elementsToAnimate = [...mainContentChildren, footerNav];
 
-            // Set Initial State (Hidden)
-            elementsToAnimate.forEach(el => {
+            const revealObserver = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('visible');
+                    }
+                });
+            }, {
+                threshold: 0.1,
+                rootMargin: '0px 0px -40px 0px'
+            });
+
+            elementsToAnimate.forEach((el, index) => {
                 if (el && el.style.display !== 'none') {
                     el.classList.add('reveal-element');
-                    el.classList.remove('visible');
+                    if (index % 2 === 0) el.classList.add('reveal-left');
+                    else el.classList.add('reveal-right');
+                    revealObserver.observe(el);
                 }
             });
 
-            // --- 3. EXECUTE STAGGERED ANIMATION ---
-            // Gunakan requestAnimationFrame agar browser siap me-render frame
-            requestAnimationFrame(() => {
-                let delay = 0;
-                elementsToAnimate.forEach((el) => {
-                    if (el && el.style.display !== 'none') {
-                        setTimeout(() => {
-                            el.classList.add('visible');
-                        }, delay);
-                        delay += 100; // Delay 100ms per item (Cukup cepat tapi terlihat berurutan)
-                    }
-                });
-            });
+            // NO PARALLAX FOR STABILITY ON LOW-END DEVICES
 
             // Success Login Modal
-            showElegantAlert({
-                type: 'success',
-                title: 'Berhasil Masuk',
-                message: 'Selamat datang kembali! Silakan lakukan absensi.',
-                timer: 2000
-            });
+            setTimeout(() => {
+                showElegantAlert({
+                    type: 'success',
+                    title: 'Berhasil Masuk',
+                    message: 'Selamat datang kembali! Silakan lakukan absensi.',
+                    timer: 2000
+                });
+            }, 600);
         }
 
         function initMapDefault() {
