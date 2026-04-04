@@ -50,6 +50,7 @@
         rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 
     <style>
         :root {
@@ -899,7 +900,7 @@
         }
 
         .text-orange {
-            color: #f59e0b;
+            color: #d97706;
         }
 
         .text-red {
@@ -1346,6 +1347,275 @@
             font-weight: 700;
             color: #1e293b;
         }
+
+        /* ACHIEVEMENT CERTIFICATE MODAL - REDESIGNED */
+        .achievement-card-popup {
+            overflow: visible !important;
+            /* Allow elements to pop out if needed */
+            border-radius: 20px !important;
+            border: none !important;
+            background: transparent !important;
+            box-shadow: none !important;
+            padding: 0 !important;
+        }
+
+        .achievement-close-btn {
+            background: rgba(255, 255, 255, 0.2) !important;
+            color: white !important;
+            border-radius: 50% !important;
+            top: -40px !important;
+            right: 0 !important;
+            width: 36px !important;
+            height: 36px !important;
+            backdrop-filter: blur(4px);
+            border: 1px solid rgba(255, 255, 255, 0.3) !important;
+        }
+
+        .achievement-card {
+            background: #ffffff;
+            padding: 24px 20px 20px 20px;
+            /* Reduced padding */
+            text-align: center;
+            position: relative;
+            border-radius: 24px;
+            box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+            /* Clip contents inside rounded corners */
+            transform: translateZ(0);
+            /* GPU Acceleration for html2canvas */
+        }
+
+        /* Premium Watermark BG */
+        .achievement-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-image:
+                radial-gradient(circle at 100% 0%, rgba(16, 185, 129, 0.08) 0%, transparent 20%),
+                radial-gradient(circle at 0% 100%, rgba(15, 23, 42, 0.05) 0%, transparent 20%);
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        /* HEADER REDESIGN */
+        .cert-header {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 12px;
+            position: relative;
+            z-index: 2;
+        }
+
+        .cert-logo {
+            width: 32px;
+            height: 32px;
+            object-fit: contain;
+            filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.1));
+        }
+
+        .cert-brand-group {
+            text-align: left;
+            line-height: 1;
+        }
+
+        .cert-app-name {
+            font-family: 'Outfit', sans-serif;
+            font-size: 18px;
+            font-weight: 800;
+            color: #0f172a;
+            letter-spacing: -0.5px;
+        }
+
+        .cert-app-tag {
+            font-size: 8px;
+            color: #64748b;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+        }
+
+        .cert-title {
+            font-family: 'Outfit', sans-serif;
+            font-size: 20px;
+            /* Reduced size for longer text */
+            font-weight: 800;
+            color: #d97706;
+            /* Solid Color - Safe for html2canvas */
+            margin-bottom: 2px;
+            letter-spacing: -0.5px;
+            text-transform: uppercase;
+            position: relative;
+            z-index: 2;
+            filter: drop-shadow(0 2px 2px rgba(0, 0, 0, 0.1));
+        }
+
+        .cert-subtitle {
+            font-size: 10px;
+            color: #10b981;
+            /* Green accent */
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-bottom: 15px;
+            position: relative;
+            z-index: 2;
+        }
+
+        /* PHOTO & STAMP REDESIGN */
+        .cert-photo-container {
+            margin-bottom: 15px;
+            display: flex;
+            justify-content: center;
+            position: relative;
+            /* Context for stamp */
+            z-index: 2;
+        }
+
+        .cert-photo-frame {
+            width: 120px;
+            /* Smaller photo */
+            height: 160px;
+            padding: 5px;
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.12);
+            border: 1px solid #f1f5f9;
+            transform: rotate(-2deg);
+            /* Subtle tilt */
+            position: relative;
+        }
+
+        .cert-photo {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 12px;
+            background: #f1f5f9;
+        }
+
+        /* STAMP OVERLAY POSITION */
+        .cert-stamp {
+            position: absolute;
+            bottom: -15px;
+            right: -15px;
+            width: 70px;
+            height: 70px;
+            border: 3px double #059669;
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(2px);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transform: rotate(-15deg);
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            z-index: 10;
+        }
+
+        .stamp-inner {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            font-weight: 900;
+            color: #059669;
+            font-size: 8px;
+            line-height: 1.1;
+            text-align: center;
+            border: 1px dashed #059669;
+            width: 58px;
+            height: 58px;
+            border-radius: 50%;
+            justify-content: center;
+        }
+
+        .cert-user-info {
+            margin-bottom: 15px;
+            position: relative;
+            z-index: 2;
+        }
+
+        .cert-user-name {
+            font-size: 18px;
+            font-weight: 800;
+            color: #1e293b;
+            margin-bottom: 2px;
+        }
+
+        .cert-user-jabatan {
+            font-size: 11px;
+            color: #64748b;
+            font-weight: 500;
+            background: #f1f5f9;
+            padding: 4px 10px;
+            border-radius: 20px;
+            display: inline-block;
+        }
+
+        .cert-footer {
+            display: flex;
+            justify-content: space-between;
+            background: #f8fafc;
+            padding: 10px 14px;
+            border-radius: 12px;
+            margin-bottom: 15px;
+            text-align: left;
+            position: relative;
+            z-index: 2;
+            border: 1px solid #f1f5f9;
+        }
+
+        .cert-label {
+            font-size: 8px;
+            font-weight: 700;
+            color: #94a3b8;
+            margin-bottom: 2px;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+        }
+
+        .cert-value {
+            font-size: 11px;
+            font-weight: 700;
+            color: #334155;
+        }
+
+        /* MODERN SHARE BUTTON */
+        .cert-share-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            width: 100%;
+            background: linear-gradient(135deg, #25d366 0%, #128c7e 100%);
+            color: white;
+            padding: 14px;
+            border-radius: 14px;
+            text-decoration: none;
+            font-weight: 700;
+            font-size: 14px;
+            box-shadow: 0 8px 15px -3px rgba(37, 211, 102, 0.4);
+            transition: all 0.2s;
+            cursor: pointer;
+            border: none;
+            position: relative;
+            z-index: 2;
+        }
+
+        .cert-share-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 20px -3px rgba(37, 211, 102, 0.5);
+        }
+
+        /* Hide content during processing */
+        .capturing .cert-share-btn {
+            opacity: 0.5;
+            pointer-events: none;
+        }
     </style>
 </head>
 
@@ -1376,7 +1646,7 @@
                     <i id="loginLogoIcon" class="fas fa-shield-alt" style="font-size:38px; color:#cbd5e1;"></i>
                 </div>
                 <h2 style="font-size:24px; font-weight:800; margin-bottom:8px; letter-spacing:-0.5px;">
-                    <span style="color:#0f172a;">SIKA</span><span style="color:#059669;">DIR</span>
+                    <span style="color:#333333;">SIKA</span><span style="color:#059669;">DIR</span>
                 </h2>
                 <div style="height:4px; width:40px; background:#059669; border-radius:2px; margin:0 auto 12px;"></div>
                 <p style="color:#0f172a; font-size:11.5px; font-weight:600; margin-bottom:4px; white-space: nowrap;">
@@ -1414,7 +1684,7 @@
 
         </div>
         <div style="text-align:center; margin-top:24px; font-size:11px; color:rgba(255,255,255,0.5);">
-            &copy; 2026 • Sistem Absensi Digital • Versi 2.0 (STABLE)
+            &copy; 2026 • Sistem Absensi Digital • Versi 2.1 (STABLE)
         </div>
     </div>
 
@@ -1540,8 +1810,8 @@
                 <span>Ajukan Izin</span>
             </div>
             <div id="navHubBtn" class="nav-item" onclick="handleNavClick(this, 'hub'); event.stopPropagation();">
-                <i class="fas fa-th-large"></i>
-                <span>Pusat Fitur</span>
+                <i class="fas fa-layer-group"></i>
+                <span>Fitur</span>
                 <div id="navBadge" class="nav-badge" style="display:none;">0</div>
             </div>
         </div>
@@ -1554,7 +1824,7 @@
             <div style="text-align: center; margin-bottom: 24px;">
                 <div style="width: 60px; height: 6px; background: #e2e8f0; border-radius: 3px; margin: 0 auto 20px;">
                 </div>
-                <h4 style="font-size: 20px; font-weight: 800; color: #0f172a; letter-spacing: -0.5px;">Pusat Layanan
+                <h4 style="font-size: 20px; font-weight: 800; color: #0f172a; letter-spacing: -0.5px;">Apps & Fitur
                 </h4>
                 <p style="font-size: 12px; color: #64748b; font-weight: 500;">Pilih fitur atau pengaturan aplikasi</p>
             </div>
@@ -1577,6 +1847,16 @@
 
     <!-- Hidden NPSN Inject -->
     <script>
+        // GLOBAL ERROR HANDLER (DEBUGGING)
+        window.onerror = function (msg, url, line) {
+            const loader = document.getElementById('pageLoader');
+            if (loader) {
+                loader.style.display = 'none'; // Force hide loader
+                // Show error in login page or alert
+                alert("System Error:\n" + msg + "\nLine: " + line);
+            }
+        };
+
         // TERIMA NPSN DARI SERVER
         let npsn = "<?= npsn ?>";
         // Sanitize: handle null, undefined, template literal, empty string
@@ -1592,6 +1872,8 @@
         let userSession = null; // Store logged in user data as object {nama, email, jabatan, ...}
         let latestAttendanceStatus = null; // Store status for countdown logic
         let lastKnownStatus = null; // Untuk tracking perubahan status notifikasi
+        let geoWatchId = null; // For clearing geolocation watch
+        let notificationIntervalId = null; // For clearing notification polling
 
         // FUNGSI UNIK ID PERANGKAT
         function getDeviceId() {
@@ -2152,7 +2434,7 @@
                                     <i class="fas fa-rocket" style="font-size:40px; color:white;"></i>
                                 </div>
                                 <h2 style="font-size:22px; font-weight:800; color:#1e293b; margin:0;">Update Baru!</h2>
-                                <div style="font-size:14px; font-weight:600; color:#10b981;">SIKADIR Versi 2.0</div>
+                                <div style="font-size:14px; font-weight:600; color:#10b981;">SIKADIR Versi 2.1</div>
                             </div>
 
                             <div style="background:#f8fafc; border-radius:16px; padding:16px; border:1px solid #e2e8f0; margin-bottom:10px;">
@@ -2160,7 +2442,7 @@
                                     <div style="width:32px; height:32px; background:#eff6ff; border-radius:8px; display:flex; align-items:center; justify-content:center; color:#3b82f6; flex-shrink:0;"><i class="fas fa-clipboard-check"></i></div>
                                     <div>
                                         <div style="font-size:13px; font-weight:700; color:#1e293b;">Sistem Approval Izin</div>
-                                        <div style="font-size:11px; color:#64748b; line-height:1.4;">Pengajuan izin kini <strong>Menunggu Persetujuan</strong> Kepala Sekolah. Status tidak langsung "Izin".</div>
+                                        <div style="font-size:11px; color:#64748b; line-height:1.4;">Pengajuan izin kini <strong>Menunggu Persetujuan</strong> Kepala Sekolah. </div>
                                     </div>
                                 </div>
                                 <div style="display:flex; gap:12px; margin-bottom:12px;">
@@ -2168,6 +2450,13 @@
                                     <div>
                                         <div style="font-size:13px; font-weight:700; color:#1e293b;">Notifikasi Realtime</div>
                                         <div style="font-size:11px; color:#64748b; line-height:1.4;">Guru akan menerima notifikasi langsung di layar saat izin disetujui atau ditolak.</div>
+                                    </div>
+                                </div>
+                                <div style="display:flex; gap:12px; margin-bottom:12px;">
+                                    <div style="width:32px; height:32px; background:#fffbeb; border-radius:8px; display:flex; align-items:center; justify-content:center; color:#d97706; flex-shrink:0;"><i class="fas fa-award"></i></div>
+                                    <div>
+                                        <div style="font-size:13px; font-weight:700; color:#1e293b;">Sertifikat Disiplin Digital</div>
+                                        <div style="font-size:11px; color:#64748b; line-height:1.4;">Rayakan pencapaian Anda. Setiap presensi tepat waktu kini dapat dibagikan sebagai sertifikat digital eksklusif ke WhatsApp, menunjukkan dedikasi dan profesionalisme Anda.</div>
                                     </div>
                                 </div>
                                 <div style="display:flex; gap:12px;">
@@ -2191,10 +2480,6 @@
                                         <div style="font-size:11px; color:#64748b; line-height:1.4;">Nikmati antarmuka baru yang lebih modern, elegan, dan profesional untuk kenyamanan Anda.</div>
                                     </div>
                                 </div>
-                            </div>
-                            
-                            <div style="font-size:11px; color:#94a3b8; text-align:center; font-style:italic;">
-                                Tekan tombol di bawah untuk mulai menggunakan versi terbaru.
                             </div>
                         </div>
                     `,
@@ -2340,6 +2625,7 @@
         }
 
         function renderFloatingHub() {
+            if (!userSession) return; // FIX: Prevent error after logout
             const container = document.getElementById('hubMenuItems');
             if (!container) return;
             const role = userSession.jabatan || '';
@@ -2485,6 +2771,7 @@
         }
 
         function validateGPSLocation() {
+            if (!userSession) return; // Exit if user is logged out
             const statusCard = document.getElementById('gpsStatusCard');
             if (!currentPosition || !appData || !statusCard) return;
 
@@ -2979,13 +3266,22 @@
                             </div>
                         `;
 
-                        showElegantAlert({
-                            type: 'success',
-                            title: titleText,
-                            message: summaryHtml,
-                            timer: 4000, // Auto close 4 detik biar sempat baca quote
-                            showConfirmButton: false
-                        });
+                        if (res.status === 'Terlambat') {
+                            showElegantAlert({
+                                type: 'success',
+                                title: titleText,
+                                message: summaryHtml,
+                                timer: 6000,
+                                showConfirmButton: false
+                            });
+                        } else {
+                            // SHOW ACHIEVEMENT MODAL FOR ON-TIME
+                            showAchievementModal({
+                                nama: userSession.nama,
+                                waktu: timeStr,
+                                foto: compressedPhoto
+                            });
+                        }
                     } else {
                         showElegantAlert({
                             type: 'error',
@@ -3005,6 +3301,223 @@
                 })
                 .processAttendance({ tipe: 'Check In', nama, pin, lat: currentPosition.lat, lng: currentPosition.lng, foto: compressedPhoto, alasan, npsn });
         }
+
+        // ============ NEW: ACHIEVEMENT MODAL SYSTEM (IMAGE SHARE) ============
+        // HELPER TO PRELOAD IMAGES FOR CANVAS GENERATION
+        function loadImage(src) {
+            return new Promise((resolve, reject) => {
+                const img = new Image();
+                img.crossOrigin = "Anonymous"; // Handle CORS for images from other domains
+                img.onload = () => resolve(img);
+                img.onerror = (e) => {
+                    console.error(`Failed to load image: ${src}`, e);
+                    // Resolve even on error so canvas generation doesn't hang, it will just be a broken image.
+                    resolve(img);
+                };
+                // Add cache-busting parameter to prevent browser from loading a stale/broken image from cache
+                img.src = src.includes('?') ? `${src}&v=${new Date().getTime()}` : `${src}?v=${new Date().getTime()}`;
+            });
+        }
+
+        function showAchievementModal(data) {
+            console.log("🏆 showAchievementModal Triggered", data);
+            try {
+                // Prepare Data
+                const titles = ["ASN DISIPLIN", "GURU TELADAN", "DEDIKASI LUAR BIASA", "GURU HEBAT", "KOMITMEN TINGGI", "PEJUANG SUBUH", "GURU DISIPLIN", "TELADAN PAGI", "GURU INSPIRATIF", "ASN UNGGUL"];
+                const randomTitle = titles[Math.floor(Math.random() * titles.length)];
+                const today = new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' });
+                const schoolName = (appData && appData.config && appData.config.schoolName) ? appData.config.schoolName : 'Sekolah';
+
+                // Safe Data Checks
+                const safeNama = data.nama || userSession.nama || 'Guru';
+                const safeWaktu = data.waktu || '-';
+                const safeFoto = data.foto || 'https://cdn-icons-png.flaticon.com/512/3135/3135715.png';
+
+                // Show Modal
+                Swal.fire({
+                    title: '',
+                    width: '340px',
+                    background: 'transparent',
+                    padding: '0',
+                    showConfirmButton: false,
+                    showCloseButton: true,
+                    customClass: {
+                        popup: 'achievement-card-popup',
+                        closeButton: 'achievement-close-btn',
+                        htmlContainer: 'p-0'
+                    },
+                    html: `
+                        <div id="certToCapture" class="achievement-card">
+                            <div class="cert-header">
+                                <!-- Modern Icon Logo -->
+                                <div style="width: 42px; height: 42px; background: linear-gradient(135deg, #0f172a 0%, #334155 100%); border-radius: 12px; display: flex; align-items: center; justify-content: center; color: white; box-shadow: 0 4px 10px rgba(15, 23, 42, 0.2);">
+                                    <i class="fas fa-fingerprint" style="font-size: 24px;"></i>
+                                </div>
+                                <div class="cert-brand-group">
+                                    <div class="cert-app-name" style="font-size: 20px;">
+                                        <span style="color: #1e293b;">SIKA</span><span style="color: #10b981;">DIR</span>
+                                    </div>
+                                    <div class="cert-app-tag" style="font-size: 9px; letter-spacing: 0.5px; opacity: 0.8;">Sistem Informasi Kehadiran Digital Guru</div>
+                                    <div style="font-size: 9px; color: #64748b; margin-top: 2px; display: flex; align-items: center; gap: 4px; font-weight: 600;">
+                                        <i class="fas fa-map-marker-alt" style="color: #ef4444;"></i> Cikalongwetan, Kab. Bandung Barat
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="cert-title" style="font-size: 16px; line-height: 1.3; padding: 0 10px;">${randomTitle}</div>
+                            <div class="cert-subtitle">Sertifikat Digital Kedisiplinan</div>
+                            
+                            <div class="cert-photo-container">
+                                <div class="cert-photo-frame">
+                                    <img src="${safeFoto}" class="cert-photo"> 
+                                    <!-- Stamp -->
+                                    <div class="cert-stamp">
+                                        <div class="stamp-inner">
+                                            <span>VERIFIED</span>
+                                            <span>ON-TIME</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div style="text-align:center; padding-bottom: 15px;">
+                                <div style="display:inline-block; background: #10b981; color: white; padding: 6px 12px; border-radius: 12px; font-size: 10px; font-weight: bold; text-transform: uppercase; line-height:1;">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" style="display: inline-block; vertical-align: middle; margin-right: 4px;"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+                                    <span style="display: inline-block; vertical-align: middle;">Tepat Waktu</span>
+                                </div>
+                            </div>
+                            
+                            <div class="cert-user-info">
+                                <div class="cert-user-name">${safeNama}</div>
+                                <div class="cert-user-jabatan">${userSession.jabatan || 'Guru / Staff'}</div>
+                            </div>
+                            
+                            <div class="cert-footer">
+                                <div class="cert-date-group" style="width: 100%; text-align: center;">
+                                    <div class="cert-label">TANGGAL</div>
+                                    <div class="cert-value" style="font-size: 14px;">${today}</div>
+                                </div>
+                            </div>
+
+                            <button id="btnShareCert" class="cert-share-btn" onclick="shareAchievementImage('${safeNama}', '${safeWaktu}', '${schoolName}')">
+                                <i class="fab fa-whatsapp" style="font-size: 18px;"></i> Bagikan Sertifikat
+                            </button>
+                            <div style="font-size: 9px; color: #94a3b8; margin-top: 10px; font-weight: 500;">
+                                <i class="fas fa-shield-alt"></i> Official Digital Record by SIKADIR v.2.1 (STABLE)
+                            </div>
+                        </div>
+                    `
+                }).then(() => {
+                    console.log("🏆 Modal Closed");
+                });
+            } catch (e) {
+                console.error("🔥 Error showing achievement modal:", e);
+                // Fallback
+                showElegantAlert({
+                    type: 'success',
+                    title: 'Check In Berhasil',
+                    message: 'Anda hadir tepat waktu pukul ' + data.waktu
+                });
+            }
+        }
+
+        // FUNGSI SHARE GAMBAR (HTML2CANVAS -> BLOB -> NAVIGATOR.SHARE) - OPTIMIZED
+        async function shareAchievementImage(nama, waktu, sekolah) {
+            const btn = document.getElementById('btnShareCert');
+            const card = document.getElementById('certToCapture');
+
+            if (!btn || !card) return;
+
+            // 1. Loading State
+            const originalText = btn.innerHTML;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Menyiapkan Gambar...';
+            btn.disabled = true; // Disable button during processing
+
+            try {
+                // OPTIMIZATION: Wait for all images inside the card to load first
+                const images = Array.from(card.getElementsByTagName('img'));
+                console.log(`Preloading ${images.length} images for canvas...`);
+                await Promise.all(images.map(img => {
+                    // Only wait for images that aren't already loaded from cache
+                    if (!img.complete) {
+                        return loadImage(img.src);
+                    }
+                    return Promise.resolve();
+                }));
+                console.log('All images loaded.');
+
+
+                // 2. Generate Image with OPTIMIZED settings
+                const canvas = await html2canvas(card, {
+                    // --- OPTIMIZATIONS ---
+                    scale: 1.2, // REDUCED from 2 for much faster rendering
+                    logging: false, // Explicitly disable logging
+                    width: card.offsetWidth, // Explicitly set dimensions
+                    height: card.offsetHeight,
+
+                    // --- Original Settings ---
+                    useCORS: true,
+                    backgroundColor: '#ffffff',
+                    // Filter out the button and close button from the screenshot
+                    ignoreElements: (element) => element.id === 'btnShareCert' || element.classList.contains('achievement-close-btn')
+                });
+
+                // 3. Convert to Blob
+                canvas.toBlob(async (blob) => {
+                    if (!blob) throw new Error("Gagal membuat gambar");
+
+                    // Create a unique filename
+                    const fileName = `Sertifikat-SIKADIR-${Date.now()}.png`;
+                    const file = new File([blob], fileName, { type: "image/png" });
+
+                    // 4. Content Text for Sharing
+                    const textData = `Alhamdulillah, Check-In Tepat Waktu! 🎯\n\nNama: *${nama}*\nPukul: *${waktu}*\nLokasi: ${sekolah}\n\n#SIKADIR #GuruDisiplin #OnTime`;
+
+                    // 5. Try Native Share (Mobile)
+                    if (navigator.canShare && navigator.canShare({ files: [file] })) {
+                        try {
+                            await navigator.share({
+                                files: [file],
+                                title: 'Sertifikat Kedisiplinan SIKADIR',
+                                text: textData
+                            });
+                            // Reset button on success
+                            btn.innerHTML = '<i class="fas fa-check"></i> Berhasil Dibagikan!';
+                            setTimeout(() => Swal.close(), 1500);
+                        } catch (shareError) {
+                            if (shareError.name !== 'AbortError') throw shareError;
+                            btn.innerHTML = originalText; // User cancelled, just reset text
+                        }
+                    } else {
+                        // FALLBACK: Download Image (Desktop / Unsupported)
+                        const link = document.createElement('a');
+                        link.download = fileName;
+                        link.href = canvas.toDataURL();
+                        link.click();
+
+                        // Also open WhatsApp Text Fallback so they can post the text
+                        const waUrl = "https://wa.me/?text=" + encodeURIComponent(textData + "\n\n(Sertifikat telah didownload, silakan lampirkan gambar secara manual)");
+                        window.open(waUrl, '_blank');
+
+                        btn.innerHTML = '<i class="fas fa-download"></i> Gambar Disimpan';
+                        setTimeout(() => Swal.close(), 2000);
+                    }
+                }, 'image/png');
+
+            } catch (err) {
+                console.error("Share Failed:", err);
+                btn.innerHTML = '<i class="fas fa-exclamation-circle"></i> Gagal Memproses';
+                alert("Maaf, browser Anda tidak mendukung fitur share gambar otomatis. Gambar akan didownload manual.");
+            } finally {
+                // Re-enable button
+                btn.disabled = false;
+                // Don't reset text immediately on success, give user feedback
+                if (!btn.innerHTML.includes("Berhasil") && !btn.innerHTML.includes("Disimpan")) {
+                    btn.innerHTML = originalText;
+                }
+            }
+        }
+
 
         async function showCheckOutDialog() {
             const nama = userSession.nama;
@@ -3164,7 +3677,7 @@
                         <div style="background: rgba(59, 130, 246, 0.05); padding: 8px; border-radius: 10px; border-left: 3px solid #3b82f6;">
                             <div style="font-size: 10px; color: #1e40af; line-height: 1.4;">
                                 <i class="fas fa-info-circle" style="margin-right: 4px;"></i>
-                                Izin harus diajukan sebelum <strong>${appData.config.jamBatasIzin}</strong> WIB.
+                                Izin harus diajukan sebelum jam <strong>${appData.config.jamBatasIzin}</strong> WIB.
                             </div>
                         </div>
                     </div>
@@ -3698,7 +4211,7 @@
                             </div>
 
                             <div style="text-align:center; padding:10px; opacity:0.7;">
-                                <div style="font-size:11px; font-weight:800; color:#1e293b;">SIKADIR v.2.0 (STABLE)</div>
+                                <div style="font-size:11px; font-weight:800; color:#1e293b;">SIKADIR v.2.1 (STABLE)</div>
                                 <div style="font-size:9px; color:#64748b; margin-top:2px;">Official Release Candidate • 2026</div>
                             </div>
                         </div>
